@@ -4,5 +4,9 @@ export interface UKTableViewDataSrouce {
      */
     numberOfRows: number;
 
-    
+    /**
+     * 
+     * @param index 
+     */
+    cellAtIndex(index: number): cc.Node;
 }
