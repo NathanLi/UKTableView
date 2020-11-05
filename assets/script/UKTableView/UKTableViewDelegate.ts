@@ -3,11 +3,11 @@ export interface UKTableViewDelegate {
      * 获取行高
      * @param index 
      */
-    sizeAtIndex?(index: number): cc.Size;
+    heightAtIndex?(index: number): number;
 
     /**
      * 估算的行高
      * @param index 
      */
-    estimateSizeAtIndex?(index: number): cc.Size;
+    estimateHeightAtIndex?(index: number): number;
 }

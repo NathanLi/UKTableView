@@ -14,8 +14,11 @@ export default class UKTableView extends cc.Component {
     @property(cc.ScrollView)
     scrollView: cc.ScrollView = null;
 
-    @property({type: cc.Size, tooltip: CC_DEV && 'cell 的大小，用于快捷设置大小'})
-    cellSize?: cc.Size = null;
+    @property({tooltip: CC_DEV && 'cell 的高度，用于快捷设置行高'})
+    itemHeight?: number = 0;
+
+    @property({tooltip: CC_DEV && 'cell 的间隔'})
+    space?: number = 0;
 
     delegate?: UKTableViewDelegate;
     dataSource?: UKTableViewDataSrouce;
@@ -58,7 +61,11 @@ export default class UKTableView extends cc.Component {
             return;
         }
 
-        const count = this.dataSource.numberOfRows;
+        const count = this.dataSource.numberOfCell;
+        
+    }
+
+    private calContentHeightOrWidth() {
         
     }
 
