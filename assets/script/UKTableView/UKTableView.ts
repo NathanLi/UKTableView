@@ -14,11 +14,12 @@ export default class UKTableView extends cc.Component {
     @property(cc.ScrollView)
     scrollView: cc.ScrollView = null;
 
-    @property({tooltip: CC_DEV && 'cell 的高度，用于快捷设置行高'})
-    itemHeight?: number = 0;
+    @property({tooltip: CC_DEV && 'cell 的大小，用于简单设置'})
+    itemSize: number = 0;
 
-    @property({tooltip: CC_DEV && 'cell 的间隔'})
-    space?: number = 0;
+    private space: number = 0;
+    private head: number = 0;
+    private tail: number = 0;
 
     delegate?: UKTableViewDelegate;
     dataSource?: UKTableViewDataSrouce;
@@ -61,13 +62,35 @@ export default class UKTableView extends cc.Component {
             return;
         }
 
-        const count = this.dataSource.numberOfCell;
-        
+        const size = this.calContentSize();
     }
 
-    private calContentHeightOrWidth() {
-        
+    private calContentSize() {
+        const count = this.dataSource.count;
+
+        let size = this.head + this.tail + (count - 1) * this.space;
+
+        let func: (index: number) => number = null;
+        if (this.delegate) {
+            if (this.delegate.sizeAtIndex) {
+                func = index => this.delegate.sizeAtIndex(index);
+            } else if (this.delegate.estimateSizeAtIndex) {
+                func = index => this.delegate.estimateSizeAtIndex(index);
+            }
+        }
+
+        if (func) {
+            for (let index = 0; index < count; ++index) {
+               size += func(index);
+            }
+        } else {
+            size += (this.itemSize * count);
+        }
+
+        return size;        
     }
+
+
 
     private onScrolling() {
         // TODO:

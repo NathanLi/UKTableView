@@ -2,7 +2,7 @@ export interface UKTableViewDataSrouce {
     /**
      * 数量
      */
-    numberOfCell: number;
+    count: number;
 
     /**
      * 
