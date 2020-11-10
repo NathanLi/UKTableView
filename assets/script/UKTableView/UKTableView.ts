@@ -25,6 +25,13 @@ export default class UKTableView extends cc.Component {
     dataSource?: UKTableViewDataSrouce;
 
     private registCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
+    private _content: cc.Node = null;
+    private get content() {
+        if (!cc.isValid(this._content)) {
+            this._content = this.scrollView.content;
+        }
+        return this._content;
+    }
 
     onLoad() {
         const node = this.scrollView.node;
@@ -57,17 +64,30 @@ export default class UKTableView extends cc.Component {
     }
 
     reloadData(): void {
-        // TODO:
         if (!this.dataSource) {
             return;
         }
 
-        const size = this.calContentSize();
+        this.setupContentSize();
     }
 
-    private calContentSize() {
+    private setupContentSize() {
+        const content = this.content;
+        const side = this.calContentSide();
+        const origin = content.getContentSize();
+        content.setContentSize(origin.width, side);
+
+        return side;
+    }
+
+    private calContentSide() {
         const count = this.dataSource.count;
 
+        if (!count) {
+            return 0;
+        }
+
+        // TODO: 计算 head、tail、space
         let size = this.head + this.tail + (count - 1) * this.space;
 
         let func: (index: number) => number = null;
@@ -91,14 +111,12 @@ export default class UKTableView extends cc.Component {
     }
 
 
-
     private onScrolling() {
         // TODO:
         const scoll = this.scrollView;
         const pos = scoll.getContentPosition();
+        const side = scoll.getScrollOffset();
         const ndContent = scoll.content;
-
-
     }
 
     private onScrollBegan() {
