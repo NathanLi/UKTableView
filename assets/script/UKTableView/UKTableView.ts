@@ -17,9 +17,13 @@ export default class UKTableView extends cc.Component {
     @property({tooltip: CC_DEV && 'cell 的大小，用于简单设置'})
     itemSize: number = 0;
 
+    @property({tooltip: CC_DEV && 'cell 的估算大小'})
+    itemEstimateSize: number = 0;
+
     private space: number = 0;
     private head: number = 0;
     private tail: number = 0;
+    private cacheSize: {[index: number]: number} = {};
 
     delegate?: UKTableViewDelegate;
     dataSource?: UKTableViewDataSrouce;
