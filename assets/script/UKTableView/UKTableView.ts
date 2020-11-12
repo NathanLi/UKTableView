@@ -85,7 +85,25 @@ export default class UKTableView extends cc.Component {
     }
 
     private layout() {
+        const scroll = this.scrollView;
+        const offset = scroll.getScrollOffset();
 
+        const contentSize = scroll.content.getContentSize();
+        const scrollSize = scroll.node.getContentSize();
+
+        const offsetStart = Math.ceil(offset.y);
+        const offsetEnd = Math.ceil(Math.min(offset.y + scrollSize.height, contentSize.height));
+
+        // 回收
+        
+
+        // 添加
+        
+
+
+
+        cc.log('offset start: ', offsetStart);
+        cc.log('offset end: ', offsetEnd.toString());
     }
 
     private calContentSide() {
@@ -127,12 +145,16 @@ export default class UKTableView extends cc.Component {
 
     private onScrolling() {
         // TODO:
-        const scoll = this.scrollView;
-        const pos = scoll.getContentPosition();
-        const offset = scoll.getScrollOffset();
-        const ndContent = scoll.content;
+        const scroll = this.scrollView;
+        const pos = scroll.getContentPosition();
+        // const offset = scoll.getScrollOffset();
+        const offset = scroll.getScrollOffset();
+        const ndContent = scroll.content;
 
         cc.log('pos: ', pos.toString(), 'offset: ', offset.toString());
+        cc.log('content: ', scroll.node.getContentSize().toString());
+
+        this.layout();
     }
 
     private onScrollBegan() {
