@@ -23,7 +23,7 @@ export default class UKTableView extends cc.Component {
     private space: number = 0;
     private head: number = 0;
     private tail: number = 0;
-    private cacheSize: {[index: number]: number} = {};
+    private cacheSide: {[index: number]: number} = {};
 
     delegate?: UKTableViewDelegate;
     dataSource?: UKTableViewDataSrouce;
@@ -84,6 +84,10 @@ export default class UKTableView extends cc.Component {
         return side;
     }
 
+    private layout() {
+
+    }
+
     private calContentSide() {
         const count = this.dataSource.count;
 
@@ -92,8 +96,9 @@ export default class UKTableView extends cc.Component {
         }
 
         // TODO: 计算 head、tail、space
-        let size = this.head + this.tail + (count - 1) * this.space;
+        this.cacheSide = {};
 
+        let size = this.head + this.tail + (count - 1) * this.space;
         let func: (index: number) => number = null;
         if (this.delegate) {
             if (this.delegate.sizeAtIndex) {
@@ -101,14 +106,19 @@ export default class UKTableView extends cc.Component {
             } else if (this.delegate.estimateSizeAtIndex) {
                 func = index => this.delegate.estimateSizeAtIndex(index);
             }
+        } else {
+            if (this.itemEstimateSize) {
+                func = () => this.itemEstimateSize;
+            } else if (this.itemSize) {
+                func = () => this.itemSize;
+            }
         }
 
-        if (func) {
-            for (let index = 0; index < count; ++index) {
-               size += func(index);
-            }
-        } else {
-            size += (this.itemSize * count);
+        for (let index = 0; index < count; ++index) {
+            const side = func(index);
+            size += side;
+
+            this.cacheSide[index] = side;
         }
 
         return size;        
@@ -119,8 +129,10 @@ export default class UKTableView extends cc.Component {
         // TODO:
         const scoll = this.scrollView;
         const pos = scoll.getContentPosition();
-        const side = scoll.getScrollOffset();
+        const offset = scoll.getScrollOffset();
         const ndContent = scoll.content;
+
+        cc.log('pos: ', pos.toString(), 'offset: ', offset.toString());
     }
 
     private onScrollBegan() {
