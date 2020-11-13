@@ -120,6 +120,9 @@ export default class UKTableView extends cc.Component {
         const showedIndexs: number[] = [];
         const movedIndexs: number[] = [];
         const children = content.children;
+
+        cc.log('offset: ', offsetStart, offsetEnd);
+
         children.forEach(child => {
             const cell = child.getComponent(UKTableViewCell);
             
@@ -129,7 +132,7 @@ export default class UKTableView extends cc.Component {
             // 在 scroll view 的外面
             const isOut = (start > (offsetEnd - 1)) || (end < (offsetStart + 1));
             if (isOut) {
-                cc.log('开始回收 ：', cell.__index);
+                cc.log('开始回收 ：', cell.__index, start, end);
 
                 // 回收
                 child.removeFromParent(false);
@@ -166,7 +169,6 @@ export default class UKTableView extends cc.Component {
                 
                 cell.__index = index;
                 node.y = -(start + (1 - node.anchorY) * node.height);
-                // node.y = start + node.anchorY * node.height;
                 content.addChild(node);
 
                 cell.__show();
