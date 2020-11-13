@@ -1,12 +1,14 @@
+import UKTableViewCell from "./cell/UKTableViewCell";
+
 export interface UKTableViewDataSrouce {
     /**
      * 数量
      */
-    count: number;
+    numberOfCells(): number;
 
     /**
      * 
      * @param index 
      */
-    cellAtIndex(index: number): cc.Node;
+    cellAtIndex(index: number): UKTableViewCell;
 }

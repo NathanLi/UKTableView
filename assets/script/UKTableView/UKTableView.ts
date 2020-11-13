@@ -1,3 +1,4 @@
+import UKTableViewCell from "./cell/UKTableViewCell";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
@@ -20,15 +21,18 @@ export default class UKTableView extends cc.Component {
     @property({tooltip: CC_DEV && 'cell 的估算大小'})
     itemEstimateSize: number = 0;
 
+    private count: number = 0;
     private space: number = 0;
     private head: number = 0;
     private tail: number = 0;
+
     private cacheSide: {[index: number]: number} = {};
+    private cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
+    private registCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
 
     delegate?: UKTableViewDelegate;
-    dataSource?: UKTableViewDataSrouce;
+    dataSource: UKTableViewDataSrouce;
 
-    private registCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
     private _content: cc.Node = null;
     private get content() {
         if (!cc.isValid(this._content)) {
@@ -40,8 +44,6 @@ export default class UKTableView extends cc.Component {
     onLoad() {
         const node = this.scrollView.node;
         node.on(EScrollEvent.scrolling, this.onScrolling, this);
-        node.on(EScrollEvent["scroll-began"], this.onScrollBegan, this);
-        node.on(EScrollEvent["scroll-ended"], this.onScrollEnd, this);
     }
 
     onDestroy() {
@@ -56,15 +58,33 @@ export default class UKTableView extends cc.Component {
 
     }
 
-    register(source: cc.Node | cc.Prefab, identifier: string): void {
+    registe(source: cc.Node | cc.Prefab, identifier?: string): void {
+        if (!identifier) {
+            identifier = 'default';
+        }
         this.registCell[identifier] = source;
     }
 
-    dequeueReusableCell(identifier: string): cc.Node {
+    dequeueReusableCell(identifier?: string): UKTableViewCell {
+        if (!identifier) {
+            identifier = 'default';
+        }
+
+        const cacheCells = this.cacheCell[identifier];
+        if (cacheCells && cacheCells.length) {
+            return cacheCells.pop();
+        }
+
         const souce = this.registCell[identifier];
         const node = cc.instantiate(souce) as cc.Node;
 
-        return node;
+        let comp = node.getComponent(UKTableViewCell);
+        if (!comp) {
+            comp = node.addComponent(UKTableViewCell);
+            comp.identifier = identifier;
+        }
+
+        return comp;
     }
 
     reloadData(): void {
@@ -73,6 +93,7 @@ export default class UKTableView extends cc.Component {
         }
 
         this.setupContentSize();
+        this.layout();
     }
 
     private setupContentSize() {
@@ -86,28 +107,85 @@ export default class UKTableView extends cc.Component {
 
     private layout() {
         const scroll = this.scrollView;
+        const content = scroll.content;
         const offset = scroll.getScrollOffset();
 
-        const contentSize = scroll.content.getContentSize();
+        const contentSize = content.getContentSize();
         const scrollSize = scroll.node.getContentSize();
 
         const offsetStart = Math.ceil(offset.y);
         const offsetEnd = Math.ceil(Math.min(offset.y + scrollSize.height, contentSize.height));
 
         // 回收
-        
+        const showedIndexs: number[] = [];
+        const movedIndexs: number[] = [];
+        const children = content.children;
+        children.forEach(child => {
+            const cell = child.getComponent(UKTableViewCell);
+            
+            const end = child.y + child.anchorY * child.height;
+            const start = end - child.height;
+            
+            // 在 scroll view 的外面
+            const isOut = (start > (offsetEnd - 1)) || (end < (offsetStart + 1));
+            if (isOut) {
+                cc.log('开始回收 ：', cell.__index);
+
+                // 回收
+                child.removeFromParent(false);
+
+                const identifier = cell.identifier;
+                if (this.cacheCell[identifier]) {
+                    this.cacheCell[identifier].push(cell);
+                } else {
+                    this.cacheCell[identifier] = [cell];
+                }
+
+                movedIndexs.push(cell.__index);
+            } else {
+                showedIndexs.push(cell.__index);
+            }
+        });
 
         // 添加
-        
+        let nextStart = this.head;
+        for (let index = 0; index < this.count; ++index) {
+            const start = nextStart;
+            const side = this.cacheSide[index];
+            const end = start + side;
 
+            if ((showedIndexs.indexOf(index) != -1) || (movedIndexs.indexOf(index) != -1)) {
+                nextStart = start + side + this.space;
+                continue;
+            }
 
+            const isOut = (start > offsetEnd) || (end < offsetStart);
+            if (!isOut) {
+                const cell = this.dataSource.cellAtIndex(index);
+                const node = cell.node;
+                
+                cell.__index = index;
+                node.y = -(start + (1 - node.anchorY) * node.height);
+                // node.y = start + node.anchorY * node.height;
+                content.addChild(node);
 
-        cc.log('offset start: ', offsetStart);
-        cc.log('offset end: ', offsetEnd.toString());
+                cell.__show();
+            }
+
+            nextStart = start + side + this.space;
+            if (nextStart > offsetEnd) {
+                break;
+            }
+        }
+
+        // cc.log('offset start: ', offsetStart);
+        // cc.log('offset end: ', offsetEnd.toString());
     }
 
     private calContentSide() {
-        const count = this.dataSource.count;
+        this.count = this.dataSource.numberOfCells();
+
+        const count = this.count;
 
         if (!count) {
             return 0;
@@ -144,28 +222,6 @@ export default class UKTableView extends cc.Component {
 
 
     private onScrolling() {
-        // TODO:
-        const scroll = this.scrollView;
-        const pos = scroll.getContentPosition();
-        // const offset = scoll.getScrollOffset();
-        const offset = scroll.getScrollOffset();
-        const ndContent = scroll.content;
-
-        cc.log('pos: ', pos.toString(), 'offset: ', offset.toString());
-        cc.log('content: ', scroll.node.getContentSize().toString());
-
         this.layout();
     }
-
-    private onScrollBegan() {
-        // TODO:
-
-    }
-
-    private onScrollEnd() {
-        // TODO:
-    }
-
-
-
 }
