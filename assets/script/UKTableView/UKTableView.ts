@@ -147,12 +147,12 @@ export default class UKTableView extends cc.Component {
             const cell = child.getComponent(UKTableViewCell);
             
             const end = child.y - child.anchorY * child.height;
-            const start = end - child.height;
+            const start = end + child.height;
             
             // 在 scroll view 的外面
             const isOut = (start < (visiableEnd - 1)) || (end > (visiableStart + 1));
             if (isOut) {
-                cc.log('开始回收 ：', cell.__index, start, (visiableEnd + 1), end, (visiableStart - 1), (start < (visiableEnd + 1)), (end > (visiableStart - 1)));
+                cc.log('开始回收 ：', cell.__index, start, (visiableEnd + 1), end, (visiableStart - 1), (start < (visiableEnd - 1)), (end > (visiableStart + 1)));
 
                 // 回收
                 child.removeFromParent(false);
