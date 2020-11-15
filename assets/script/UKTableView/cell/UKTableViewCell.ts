@@ -9,7 +9,6 @@ export default class UKTableViewCell extends cc.Component {
     __index: number;
 
     __show() {
-        this.getComponent(cc.Label).string = `index = ${this.__index}, y = ${this.node.y}`;
-        cc.log('显示：', this.getComponent(cc.Label).string);
+        this.getComponent(cc.Label).string = `index = ${this.__index}, y = ${this.node.y}, height = ${this.node.height}`;
     }
 }

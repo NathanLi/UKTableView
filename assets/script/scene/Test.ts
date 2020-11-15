@@ -14,6 +14,9 @@ export default class Test extends cc.Component implements UKTableViewDataSrouce 
     onLoad() {
         const node = new cc.Node();
         const label = node.addComponent(cc.Label);
+        label.overflow = cc.Label.Overflow.SHRINK;
+        label.verticalAlign = cc.Label.VerticalAlign.CENTER;
+        label.horizontalAlign = cc.Label.HorizontalAlign.CENTER;
         node.setContentSize(cc.winSize.width, 100);
 
         node.color = cc.Color.BLACK;

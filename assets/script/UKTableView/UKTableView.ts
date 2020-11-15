@@ -117,35 +117,42 @@ export default class UKTableView extends cc.Component {
     private layout() {
         const scroll = this.scrollView;
         const content = scroll.content;
+        const contentHeight = content.height;
+        const scrollHeight = scroll.node.height;
 
-        const basePos = content.anchorY * content.height;
+        const top = (1 - content.anchorY) * contentHeight;
+        const bottom = top - contentHeight;
+    
+        const basePos = content.anchorY * contentHeight;
         const offset = scroll.getScrollOffset();
         const position = scroll.getContentPosition() as any as cc.Vec2;
 
         const contentSize = content.getContentSize();
         const scrollSize = scroll.node.getContentSize();
 
-        const showStart = Math.ceil(offset.y) - basePos;
-        const showEnd = Math.ceil(Math.min(offset.y + scrollSize.height, contentSize.height)) - basePos;
+        const visiableStart = Math.min(top - Math.round(offset.y), top);
+        const visiableEnd = visiableStart - scrollHeight;
 
         // 回收
         const showedIndexs: number[] = [];
         const movedIndexs: number[] = [];
         const children = content.children;
 
-        cc.log('position: ', position.y);
-        cc.log('offset(fix): ', showStart, showEnd);
+        // cc.log('position: ', position.y);
+        // cc.log('offset: ', offset.toString());
+        // cc.log('show: ', visiableStart, visiableEnd);
+        // return;
 
         children.forEach(child => {
             const cell = child.getComponent(UKTableViewCell);
             
-            const end = child.y + child.anchorY * child.height;
+            const end = child.y - child.anchorY * child.height;
             const start = end - child.height;
             
             // 在 scroll view 的外面
-            const isOut = (start > (showEnd - 1)) || (end < (showStart + 1));
+            const isOut = (start < (visiableEnd - 1)) || (end > (visiableStart + 1));
             if (isOut) {
-                cc.log('开始回收 ：', cell.__index, start, end);
+                cc.log('开始回收 ：', cell.__index, start, (visiableEnd + 1), end, (visiableStart - 1), (start < (visiableEnd + 1)), (end > (visiableStart - 1)));
 
                 // 回收
                 child.removeFromParent(false);
@@ -164,33 +171,36 @@ export default class UKTableView extends cc.Component {
         });
 
         // 添加
-        let nextStart = - this.head;
+        let nextStart = top - this.head;
         for (let index = 0; index < this.count; ++index) {
             const start = nextStart;
             const side = this.cacheSide[index];
             const end = start - side;
 
-            // if ((showedIndexs.indexOf(index) != -1) || (movedIndexs.indexOf(index) != -1)) {
-            //     nextStart = start - side - this.space;
-            //     continue;
-            // }
+            if ((showedIndexs.indexOf(index) != -1) || (movedIndexs.indexOf(index) != -1)) {
+                nextStart = start - side - this.space;
+                continue;
+            }
 
-            // const isOut = (start > showEnd) || (end < showStart);
-            const isOut = index > 20;
+            const isOut = (start > visiableStart) || (end < visiableEnd);
             if (!isOut) {
                 const cell = this.dataSource.cellAtIndex(index);
                 const node = cell.node;
-                
-                cell.__index = index;
-                node.y = (start + (1 - node.anchorY) * node.height);
+
                 content.addChild(node);
+
+                cell.__index = index;
+                node.height = side;
+                node.y = (start - (1 - node.anchorY) * side);
+
+                cc.log(`index=${index}, side=${side}, node.height=${node.height}`);
 
                 cell.__show();
             }
 
             nextStart = start - side - this.space;
-            if (nextStart > showEnd) {
-                // break;
+            if (nextStart > visiableEnd) {
+                break; 
             }
         }
 
