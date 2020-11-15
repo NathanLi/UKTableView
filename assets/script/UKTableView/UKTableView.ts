@@ -152,7 +152,7 @@ export default class UKTableView extends cc.Component {
             // 在 scroll view 的外面
             const isOut = (start < (visiableEnd - 1)) || (end > (visiableStart + 1));
             if (isOut) {
-                cc.log('开始回收 ：', cell.__index, start, (visiableEnd + 1), end, (visiableStart - 1), (start < (visiableEnd - 1)), (end > (visiableStart + 1)));
+                // cc.log('开始回收 ：', cell.__index, start, (visiableEnd + 1), end, (visiableStart - 1), (start < (visiableEnd - 1)), (end > (visiableStart + 1)));
 
                 // 回收
                 child.removeFromParent(false);
@@ -179,6 +179,7 @@ export default class UKTableView extends cc.Component {
 
             if ((showedIndexs.indexOf(index) != -1) || (movedIndexs.indexOf(index) != -1)) {
                 nextStart = start - side - this.space;
+                // cc.log(`${index} continue`);
                 continue;
             }
 
@@ -193,13 +194,14 @@ export default class UKTableView extends cc.Component {
                 node.height = side;
                 node.y = (start - (1 - node.anchorY) * side);
 
-                cc.log(`index=${index}, side=${side}, node.height=${node.height}`);
+                // cc.log(`index=${index}, side=${side}, node.height=${node.height}`);
 
                 cell.__show();
             }
 
             nextStart = start - side - this.space;
-            if (nextStart > visiableEnd) {
+            if (nextStart < visiableEnd) {
+                // cc.log(`${index} break`);
                 break; 
             }
         }
