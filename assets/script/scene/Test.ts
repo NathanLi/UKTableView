@@ -37,8 +37,7 @@ export default class Test extends cc.Component implements UKTableViewDataSrouce 
     }
 
     cellAtIndex(index: number) {
-        cc.log('cell at : ', index);
-
+        // cc.log('cell at : ', index);
         const cell = this.tableView.dequeueReusableCell();
         const label = cell.getComponent(cc.Label);
 

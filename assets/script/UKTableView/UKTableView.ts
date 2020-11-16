@@ -34,6 +34,7 @@ export default class UKTableView extends cc.Component {
     private tail: number = 0;
 
     private dir = EUKTableViewDir.TopToBottom;  // 0 Top to bottom；1 bottom to top.
+    private layoutOffset: number = 0;
 
     private cacheSide: {[index: number]: number} = {};
     private cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
@@ -130,12 +131,17 @@ export default class UKTableView extends cc.Component {
         const contentSize = content.getContentSize();
         const scrollSize = scroll.node.getContentSize();
 
-        const visiableStart = Math.min(top - Math.round(offset.y), top);
+        const visiableStart = Math.min(top - offset.y, top);
         const visiableEnd = visiableStart - scrollHeight;
+
+        if (Math.abs(visiableStart - this.layoutOffset) < 10) {
+            return;
+        }
+
+        this.layoutOffset = visiableStart;
 
         // 回收
         const showedIndexs: number[] = [];
-        const movedIndexs: number[] = [];
         const children = content.children;
 
         // cc.log('position: ', position.y);
@@ -143,9 +149,10 @@ export default class UKTableView extends cc.Component {
         // cc.log('show: ', visiableStart, visiableEnd);
         // return;
 
+        let time = performance.now();
+
         children.forEach(child => {
             const cell = child.getComponent(UKTableViewCell);
-            
             const end = child.y - child.anchorY * child.height;
             const start = end + child.height;
             
@@ -164,11 +171,15 @@ export default class UKTableView extends cc.Component {
                     this.cacheCell[identifier] = [cell];
                 }
 
-                movedIndexs.push(cell.__index);
             } else {
                 showedIndexs.push(cell.__index);
             }
+            showedIndexs.push(cell.__index);
         });
+
+        // let now = performance.now();
+        // cc.log('回收：', (now - time), 'ms');
+        // time = now;
 
         // 添加
         let nextStart = top - this.head;
@@ -177,13 +188,13 @@ export default class UKTableView extends cc.Component {
             const side = this.cacheSide[index];
             const end = start - side;
 
-            if ((showedIndexs.indexOf(index) != -1) || (movedIndexs.indexOf(index) != -1)) {
-                nextStart = start - side - this.space;
+            if (showedIndexs.indexOf(index) != -1) {
+                nextStart = end - this.space;
                 // cc.log(`${index} continue`);
                 continue;
             }
 
-            const isOut = (start > visiableStart) || (end < visiableEnd);
+            const isOut = (end > visiableStart) || (start < visiableEnd);
             if (!isOut) {
                 const cell = this.dataSource.cellAtIndex(index);
                 const node = cell.node;
@@ -199,12 +210,15 @@ export default class UKTableView extends cc.Component {
                 cell.__show();
             }
 
-            nextStart = start - side - this.space;
+            nextStart = end - this.space;
             if (nextStart < visiableEnd) {
-                // cc.log(`${index} break`);
                 break; 
             }
         }
+
+        // now = performance.now();
+        // cc.log('添加：', (now - time), 'ms');
+        // time = now;
 
         // cc.log('offset start: ', offsetStart);
         // cc.log('offset end: ', offsetEnd.toString());
@@ -251,5 +265,9 @@ export default class UKTableView extends cc.Component {
 
     private onScrolling() {
         this.layout();
+    }
+
+    lateUpdate() {
+        // this.layout();
     }
 }

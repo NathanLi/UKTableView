@@ -3,7 +3,7 @@ const {ccclass, property, menu} = cc._decorator;
 @ccclass
 export default class UKTableViewCell extends cc.Component {
     @property
-    identifier: string;
+    identifier: string = 'default';
 
     /** 内部使用 */
     __index: number;
