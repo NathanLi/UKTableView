@@ -1,4 +1,5 @@
 import UKTableViewCell from "./cell/UKTableViewCell";
+import { IUKLayout } from "./layout/IUKLayout";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
@@ -275,7 +276,6 @@ export default class UKTableView extends cc.Component {
             return 0;
         }
 
-        // TODO: 计算 head、tail、space
         this.cacheSide = {};
 
         let size = this.head + this.tail + (count - 1) * this.space;
