@@ -102,8 +102,47 @@ export default class UKTableView extends cc.Component {
             return;
         }
 
+        this.setupLayoutArgs();
         this.setupContentSize();
         this.layout();
+    }
+
+    private setupLayoutArgs() {
+        const ndContent = this.content;
+        const layout = ndContent.getComponent(cc.Layout);
+
+        if (!layout || (layout.type == cc.Layout.Type.GRID)) {
+            this.tail = 0;
+            this.head = 0;
+            this.space = 0;
+            this.dir = EUKTableViewDir.TopToBottom;
+            return;
+        }
+
+        if (layout.type == cc.Layout.Type.HORIZONTAL) {
+            this.space = layout.spacingX;
+            if (layout.horizontalDirection == cc.Layout.HorizontalDirection.RIGHT_TO_LEFT) {
+                this.dir = EUKTableViewDir.RightToLeft;
+                this.head = layout.paddingRight;
+                this.tail = layout.paddingLeft;
+            } else {
+                this.dir = EUKTableViewDir.LeftToRight;
+                this.head = layout.paddingLeft;
+                this.tail = layout.paddingRight;
+            }
+            return;
+        }
+
+        this.space = layout.spacingY;
+        if (layout.verticalDirection == cc.Layout.VerticalDirection.BOTTOM_TO_TOP) {
+            this.dir = EUKTableViewDir.BottomToTop;
+            this.head = layout.paddingBottom;
+            this.tail = layout.paddingTop;
+        } else {
+            this.dir = EUKTableViewDir.TopToBottom;
+            this.head = layout.paddingTop;
+            this.tail = layout.paddingBottom;
+        }
     }
 
     private setupContentSize() {
@@ -177,49 +216,52 @@ export default class UKTableView extends cc.Component {
             showedIndexs.push(cell.__index);
         });
 
-        // let now = performance.now();
+        let now = performance.now();
         // cc.log('回收：', (now - time), 'ms');
-        // time = now;
 
         // 添加
+        let hasAdd = false;
         let nextStart = top - this.head;
         for (let index = 0; index < this.count; ++index) {
+
             const start = nextStart;
             const side = this.cacheSide[index];
             const end = start - side;
 
+            
             if (showedIndexs.indexOf(index) != -1) {
                 nextStart = end - this.space;
                 // cc.log(`${index} continue`);
-                continue;
+                // continue;
+            } else {
+                const isOut = (end > visiableStart) || (start < visiableEnd);
+                if (!isOut) {
+                    const cell = this.dataSource.cellAtIndex(index);
+                    const node = cell.node;
+                    
+                    content.addChild(node);
+                    
+                    cell.__index = index;
+                    node.height = side;
+                    node.y = (start - (1 - node.anchorY) * side);
+                    
+                    // cc.log(`index=${index}, side=${side}, node.height=${node.height}`);
+                    
+                    cell.__show();
+                    hasAdd = true;
+                }
             }
-
-            const isOut = (end > visiableStart) || (start < visiableEnd);
-            if (!isOut) {
-                const cell = this.dataSource.cellAtIndex(index);
-                const node = cell.node;
-
-                content.addChild(node);
-
-                cell.__index = index;
-                node.height = side;
-                node.y = (start - (1 - node.anchorY) * side);
-
-                // cc.log(`index=${index}, side=${side}, node.height=${node.height}`);
-
-                cell.__show();
-            }
-
+            
+            
+            
             nextStart = end - this.space;
             if (nextStart < visiableEnd) {
                 break; 
             }
         }
 
-        // now = performance.now();
-        // cc.log('添加：', (now - time), 'ms');
-        // time = now;
-
+        const duration = (performance.now() - now);
+        // cc.log('添加：', duration, 'ms', hasAdd, forTimes);
         // cc.log('offset start: ', offsetStart);
         // cc.log('offset end: ', offsetEnd.toString());
     }
