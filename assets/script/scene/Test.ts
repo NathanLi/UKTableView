@@ -38,10 +38,12 @@ export default class Test extends cc.Component implements UKTableViewDataSrouce 
 
         label.string = index + '';
 
-        if ((index < 2) && (cell.node.height < 101)) {
+        if ((index == 0) && (cell.node.height < 101)) {
             this.scheduleOnce(() => {
-                cell.node.height += 20 + Math.ceil(Math.random() * 30);
-            }, index + 1);
+                if (cell.node.height < 101) {
+                    cell.node.height = 500;
+                }
+            }, 1);
         }
         return cell;
     }

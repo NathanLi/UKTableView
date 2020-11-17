@@ -2,7 +2,7 @@ import UKTableViewCell from "../cell/UKTableViewCell";
 import { ESideType, IUKLayout } from "./IUKLayout";
 
 export class UKLayout implements IUKLayout {
-    protected doLayoutOffset: number = -1;
+    protected doLayoutOffset: number = undefined;
 
     head: number = 0;
     tail: number = 0;

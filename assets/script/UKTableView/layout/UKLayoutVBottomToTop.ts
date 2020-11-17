@@ -22,7 +22,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
         const visiableStart = Math.min(top - offset.y, top);
         const visiableEnd = visiableStart - scrollHeight;
 
-        if (Math.abs(visiableStart - this.doLayoutOffset) < Math.max(this.minDiff, 0.1)) {
+        if ((this.doLayoutOffset !== undefined) && Math.abs(visiableStart - this.doLayoutOffset) < Math.max(this.minDiff, 0.1)) {
             return;
         }
 
@@ -39,6 +39,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
             const isOut = (start < (visiableEnd - 1)) || (end > (visiableStart + 1));
             if (isOut) {
                 this.recyleCell(cell);
+                cc.log('回收了：', cell.__index);
             }
             
             showedIndexs.push(cell.__index);
@@ -86,23 +87,22 @@ export class UKLayoutVBottomToTop extends UKLayout {
             return;
         }
 
-        const children = content.children;
-        const mapNodes: {[index: number]: cc.Node} = {};
+        this.doLayoutOffset = undefined;
 
-        let minIndex = count + 1, maxIndex = 0;
+        const children = content.children;
+        const length = children.length;
+        
+        const mapNodes: {[index: number]: cc.Node} = {};
         children.forEach(node => {
             const cell = node.getComponent(UKTableViewCell);
             const index = cell.__index;
-
-            minIndex = Math.min(minIndex, index);
-            maxIndex = Math.max(maxIndex, index);
-
             mapNodes[index] = node;
         });
 
-        const minNode = mapNodes[minIndex];
-        let nextStart = minNode.y - minNode.anchorY * minNode.height;
-        for (let index = minIndex; index <= maxIndex; ++index) {
+        const bottom = -content.anchorY * content.height;
+        let nextStart = bottom + this.head;
+        let layoutCount = 0;
+        for (let index = 0; index < count; ++index) {
             const start = nextStart;
             const side = this.sizeAtIndex(index);
             const node = mapNodes[index];
@@ -112,8 +112,15 @@ export class UKLayoutVBottomToTop extends UKLayout {
                 continue;
             }
 
-            const y = (start - (1 - node.anchorY) * side);
+            const y = (start + (1 - node.anchorY) * side);
             node.y = y;
+
+            nextStart = start + side + this.space;
+            layoutCount++;
+
+            if (layoutCount == length) {
+                break;
+            }
         }
     }
 
