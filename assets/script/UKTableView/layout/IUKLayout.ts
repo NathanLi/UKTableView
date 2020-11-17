@@ -41,9 +41,13 @@ export interface IUKLayout {
     calContentSize(count: number): number;
 
     /**
-     * 开始布局
+     * 开始布局(会有回收、添加cell)
      * @param scrollView 
      */
     doLayout(scrollView: cc.ScrollView, count: number): void;
 
+    /**
+     * 重新布局(不会回收、添加 cell)
+     */
+    relayout(scrollView: cc.ScrollView, count: number): void;
 }

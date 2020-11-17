@@ -78,4 +78,44 @@ export class UKLayoutVBottomToTop extends UKLayout {
             }
         }
     }
+
+    relayout(scroll: cc.ScrollView, count: number): void {
+        const content = scroll.content;
+
+        if (content.childrenCount <= 0) {
+            return;
+        }
+
+        const children = content.children;
+        const mapNodes: {[index: number]: cc.Node} = {};
+
+        let minIndex = count + 1, maxIndex = 0;
+        children.forEach(node => {
+            const cell = node.getComponent(UKTableViewCell);
+            const index = cell.__index;
+
+            minIndex = Math.min(minIndex, index);
+            maxIndex = Math.max(maxIndex, index);
+
+            mapNodes[index] = node;
+        });
+
+        const minNode = mapNodes[minIndex];
+        let nextStart = minNode.y - minNode.anchorY * minNode.height;
+        for (let index = minIndex; index <= maxIndex; ++index) {
+            const start = nextStart;
+            const side = this.sizeAtIndex(index);
+            const node = mapNodes[index];
+
+            if (!node) {
+                nextStart = start + side + this.space;
+                continue;
+            }
+
+            const y = (start - (1 - node.anchorY) * side);
+            node.y = y;
+        }
+    }
+
+
 }

@@ -41,4 +41,8 @@ export class UKLayout implements IUKLayout {
     doLayout(scollView: cc.ScrollView, count: number): void {
         throw '应该由子类实现';
     }
+
+    relayout(scollView: cc.ScrollView, count: number): void {
+        throw '应该由子类实现';
+    }
 }
