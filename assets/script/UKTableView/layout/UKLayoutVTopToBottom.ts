@@ -1,24 +1,14 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
+import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
 
 export class UKLayoutVTopToBottom extends UKLayout {
+    sideProperName = ESideType.height;
+
     initLayout(layout: cc.Layout) {
         this.space = layout.spacingY;
         this.head = layout.paddingTop;
         this.tail = layout.paddingBottom;
-    }
-
-    calContentSize(count: number): number {
-        if (count <= 0) {
-            return 0;
-        }
-
-        let size = this.head + this.tail + (count - 1) * this.space;
-        for (let index = 0; index < count; ++index) {
-            size += this.sizeAtIndex(index);
-        }
-
-        return size;
     }
 
     doLayout(scroll: cc.ScrollView, count: number): void {

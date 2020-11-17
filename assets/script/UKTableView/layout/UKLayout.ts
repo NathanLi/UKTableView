@@ -1,5 +1,5 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
-import { IUKLayout } from "./IUKLayout";
+import { ESideType, IUKLayout } from "./IUKLayout";
 
 export class UKLayout implements IUKLayout {
     protected doLayoutOffset: number = -1;
@@ -8,6 +8,7 @@ export class UKLayout implements IUKLayout {
     tail: number = 0;
     space: number = 0;
 
+    sideProperName = ESideType.height;
     minDiff = 1;
 
     sizeAtIndex?: (index: number) => number;
@@ -25,7 +26,16 @@ export class UKLayout implements IUKLayout {
     }
 
     calContentSize(count: number): number {
-        throw '应该由子类实现';
+        if (count <= 0) {
+            return 0;
+        }
+
+        let size = this.head + this.tail + (count - 1) * this.space;
+        for (let index = 0; index < count; ++index) {
+            size += this.sizeAtIndex(index);
+        }
+
+        return size;
     }
 
     doLayout(scollView: cc.ScrollView, count: number): void {

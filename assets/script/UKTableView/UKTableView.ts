@@ -6,12 +6,6 @@ import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
 const {ccclass, property, menu} = cc._decorator;
 
-enum EScrollEvent {
-    'scrolling' = 'scrolling',
-    'scroll-began' = 'scroll-began',
-    'scroll-ended' = 'scroll-ended',
-};
-
 @ccclass
 export default class UKTableView extends cc.Component {
     @property(cc.ScrollView)
@@ -79,14 +73,17 @@ export default class UKTableView extends cc.Component {
         if (!comp) {
             comp = node.addComponent(UKTableViewCell);
             comp.identifier = identifier;
+            comp.__sizeChangedCB = cell => this.onCellSizeChanged(cell);
         }
 
         return comp;
     }
 
-    reloadData(): void {
+    reloadData(count: number): void {
+        this.count = count;
+
         if (!this.dataSource) {
-            return;
+            throw 'you should set dataSource!';
         }
 
         this.setupLayoutArgs();
@@ -106,14 +103,16 @@ export default class UKTableView extends cc.Component {
         this.layout = createUKLayout(layout);
         this.layout.recyleCell = cell => this.cycleCell(cell);
         this.layout.sizeAtIndex = index => this.sizeAtIndex(index);
-        this.layout.cellAtIndex = index => this.dataSource.cellAtIndex(index);
+        this.layout.cellAtIndex = index => this.cellAtIndex(index);
     }
 
     private setupContentSize() {
         const content = this.content;
         const side = this.calContentSide();
-        const origin = content.getContentSize();
-        content.setContentSize(origin.width, side);
+
+        content[this.layout.sideProperName] = side;
+
+        cc.log('更新内容大小：', side);
 
         return side;
     }
@@ -123,7 +122,6 @@ export default class UKTableView extends cc.Component {
     }
 
     private calContentSide() {
-        this.count = this.dataSource.numberOfCells();
         return this.layout.calContentSize(this.count);
     }
 
@@ -131,7 +129,8 @@ export default class UKTableView extends cc.Component {
         let size = this.cacheSide[index];
         if (!size) {
             size = this.itemEstimateSize;
-            if (this.delegate) {
+
+            if (this.delegate && this.delegate.estimateSizeAtIndex) {
                 size = this.delegate.estimateSizeAtIndex(index);
             }
 
@@ -150,6 +149,20 @@ export default class UKTableView extends cc.Component {
         } else {
             this.cacheCell[identifier] = [cell];
         }
+    }
+
+    private cellAtIndex(index: number): UKTableViewCell {
+        const cell = this.dataSource.cellAtIndex(index);
+        return cell;
+    }
+
+    private onCellSizeChanged(cell: UKTableViewCell) {
+        const index = cell.__index;
+        const side = cell.node[this.layout.sideProperName];
+
+        this.cacheSide[index] = side;
+        this.setupContentSize();
+        this.doLayout();
     }
 
     lateUpdate() {

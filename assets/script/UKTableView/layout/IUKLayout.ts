@@ -1,11 +1,19 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
 
+export enum ESideType {
+    height = 'height',
+    width = 'width',
+}
+
 export interface IUKLayout {
     head: number;
     tail: number;
     space: number;
 
     minDiff: number;
+
+    /** 获取边长的属性名 */
+    sideProperName: ESideType;
 
     destory(): void;
 

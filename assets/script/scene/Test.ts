@@ -24,7 +24,7 @@ export default class Test extends cc.Component implements UKTableViewDataSrouce 
         this.tableView.dataSource = this;
         this.tableView.itemEstimateSize = 100;
         this.tableView.registe(node);
-        this.tableView.reloadData();
+        this.tableView.reloadData(100);
     }
 
     onScrolling() {
@@ -32,15 +32,17 @@ export default class Test extends cc.Component implements UKTableViewDataSrouce 
     }
 
     // MARK: UKTableViewDataSrouce
-    numberOfCells() {
-        return 100;
-    }
-
     cellAtIndex(index: number) {
         const cell = this.tableView.dequeueReusableCell();
         const label = cell.getComponent(cc.Label);
 
         label.string = index + '';
+
+        if ((index < 2) && (cell.node.height < 101)) {
+            this.scheduleOnce(() => {
+                cell.node.height += 20 + Math.ceil(Math.random() * 30);
+            }, index + 1);
+        }
         return cell;
     }
 }
