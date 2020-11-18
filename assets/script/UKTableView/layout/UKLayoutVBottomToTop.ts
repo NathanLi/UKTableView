@@ -79,7 +79,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
         }
     }
 
-    relayout(scroll: cc.ScrollView, count: number): void {
+    fixPositions(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
 
         if (content.childrenCount <= 0) {

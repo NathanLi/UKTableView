@@ -49,5 +49,5 @@ export interface IUKLayout {
     /**
      * 重新布局(不会回收、添加 cell)
      */
-    relayout(scrollView: cc.ScrollView, count: number): void;
+    fixPositions(scrollView: cc.ScrollView, count: number): void;
 }
