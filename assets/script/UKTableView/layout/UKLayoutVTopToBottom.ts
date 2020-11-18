@@ -29,7 +29,7 @@ export class UKLayoutVTopToBottom extends UKLayout {
 
         this.doLayoutOffset = visiableStart;
 
-        const children = content.children;
+        const children = content.children.slice();
         const showedIndexs: number[] = [];
 
         // 回收

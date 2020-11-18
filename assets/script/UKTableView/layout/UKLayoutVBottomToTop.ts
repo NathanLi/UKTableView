@@ -28,7 +28,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
 
         this.doLayoutOffset = visiableStart;
 
-        const children = content.children;
+        const children = content.children.slice();
         const showedIndexs: number[] = [];
 
         // 回收
@@ -39,7 +39,6 @@ export class UKLayoutVBottomToTop extends UKLayout {
             const isOut = (start < (visiableEnd - 1)) || (end > (visiableStart + 1));
             if (isOut) {
                 this.recyleCell(cell);
-                cc.log('回收了：', cell.__index);
             }
             
             showedIndexs.push(cell.__index);
