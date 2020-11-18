@@ -1,4 +1,5 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
+import { uk } from "../util/uk";
 import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
 
@@ -65,7 +66,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
                 const node = cell.node;
 
                 node.height = side;
-                node.y = (start - (1 - node.anchorY) * side);
+                uk.setYByTop(node, start, side);
 
                 content.addChild(node);
 
@@ -98,7 +99,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
             mapNodes[index] = node;
         });
 
-        const bottom = -content.anchorY * content.height;
+        const bottom = uk.getContentBottom(content);
         let nextStart = bottom + this.head;
         let layoutCount = 0;
         for (let index = 0; index < count; ++index) {
@@ -111,8 +112,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
                 continue;
             }
 
-            const y = (start + (1 - node.anchorY) * side);
-            node.y = y;
+            uk.setYByBottom(node, start, side);
 
             nextStart = start + side + this.space;
             layoutCount++;
