@@ -1,18 +1,89 @@
 import UKTableViewCell from "./cell/UKTableViewCell";
 import { IUKLayout } from "./layout/IUKLayout";
-import { createUKLayout } from "./layout/UKLayoutFactory";
+import { UKLayoutHLeftToRight } from "./layout/UKLayoutHLeftToRight";
+import { UKLayoutHRightToLeft } from "./layout/UKLayoutHRightToLeft";
+import { UKLayoutVBottomToTop } from "./layout/UKLayoutVBottomToTop";
+import { UKLayoutVTopToBottom } from "./layout/UKLayoutVTopToBottom";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
-const {ccclass, property, menu} = cc._decorator;
+const {ccclass, property} = cc._decorator;
+
+export enum EUKTableViewType {
+    VERTICAL = 0,
+    HORIZONTAL = 1
+}
+
+export enum EUKTableViewVerticalDirection {
+    TOP_TO_BOTTOM = 0,
+    BOTTOM_TO_TOP = 1,
+}
+
+export enum EUKTableViewHorizontalDirection {
+    LEFT_TO_RIGHT = 0,
+    RIGHT_TO_LEFT = 1,
+}
 
 @ccclass
 export default class UKTableView extends cc.Component {
     @property(cc.ScrollView)
     scrollView: cc.ScrollView = null;
 
+    @property({type: cc.Enum(EUKTableViewType), tooltip: CC_DEV && 'VERTICAL: 垂直自动排列\n HORIZONTAL: 水平自动排列'})
+    type: EUKTableViewType = EUKTableViewType.VERTICAL;
+
+    @property({
+        tooltip: CC_DEV && '容器内上边距，只会在一个布局方向上生效',
+        visible:function() {return this.type == EUKTableViewType.VERTICAL},
+    })
+    paddingTop: number = 0;
+
+    @property({
+        tooltip: CC_DEV && '容器内下边距，只会在一个布局方向上生效',
+        visible:function() {return this.type == EUKTableViewType.VERTICAL}, 
+    })
+    paddingBottom: number = 0;
+
+    @property({
+        tooltip: CC_DEV && '容器内左边距，只会在一个布局方向上生效',
+        visible:function() {return this.type == EUKTableViewType.HORIZONTAL}, 
+    })
+    paddingLeft: number = 0;
+
+    @property({
+        tooltip: CC_DEV && '容器内右边距，只会在一个布局方向上生效',
+        visible:function() {return this.type == EUKTableViewType.HORIZONTAL}, 
+    })
+    paddingRight: number = 0;
+
+    @property({
+        visible:function() {return this.type == EUKTableViewType.VERTICAL}, 
+        tooltip: CC_DEV && '相邻子节点间的垂直距离',
+    })
+    spaceY: number = 0;
+
+    @property({
+        visible:function() {return this.type == EUKTableViewType.HORIZONTAL}, 
+        tooltip: CC_DEV && '相邻子节点间的水平距离',
+    })
+    spaceX: number = 0;
+
     @property({tooltip: CC_DEV && 'cell 的估算大小'})
     itemEstimateSize: number = 0;
+
+    @property({
+        visible:function() {return this.type == EUKTableViewType.VERTICAL}, 
+        tooltip: CC_DEV && '垂直排列子节点的方向，包括：\nTOP_TO_BOTTOM: 从上往下排\nBOTTOM_TO_TOP: 从下往上排',
+        type: cc.Enum(EUKTableViewVerticalDirection)
+    })
+    verticalDirection: EUKTableViewVerticalDirection = EUKTableViewVerticalDirection.TOP_TO_BOTTOM;
+
+    @property({
+        visible:function() {return this.type == EUKTableViewType.HORIZONTAL}, 
+        tooltip: CC_DEV && '水平排列子节点的方向，包括：\nLEFT_TO_RIGHT: 从上往下排\nRIGHT_TO_LEFT: 从下往上排',
+        type: cc.Enum(EUKTableViewHorizontalDirection)
+    })
+    horizontalDirection: EUKTableViewHorizontalDirection = EUKTableViewHorizontalDirection.LEFT_TO_RIGHT;
 
     private count: number = 0;
     private layout: IUKLayout;
@@ -93,17 +164,43 @@ export default class UKTableView extends cc.Component {
 
     private setupLayoutArgs() {
         const ndContent = this.content;
-        const layout = ndContent.getComponent(cc.Layout);
+        const cclayout = ndContent.getComponent(cc.Layout);
 
-        layout && (layout.enabled = false);
+        cclayout && (cclayout.enabled = false);
 
         this.cacheSide = {};
 
         this.layout && (this.layout.destory());
-        this.layout = createUKLayout(layout);
-        this.layout.recyleCell = cell => this.cycleCell(cell);
-        this.layout.sizeAtIndex = index => this.sizeAtIndex(index);
-        this.layout.cellAtIndex = index => this.cellAtIndex(index);
+        this.layout = this.createLayout();        
+    }
+
+    private createLayout() {
+        const layoutMaps = {
+            [EUKTableViewType.VERTICAL]: {
+                [EUKTableViewVerticalDirection.TOP_TO_BOTTOM]: UKLayoutVTopToBottom,
+                [EUKTableViewVerticalDirection.BOTTOM_TO_TOP]: UKLayoutVBottomToTop,
+            },
+            [EUKTableViewType.HORIZONTAL]: {
+                [EUKTableViewHorizontalDirection.LEFT_TO_RIGHT]: UKLayoutHLeftToRight,
+                [EUKTableViewHorizontalDirection.RIGHT_TO_LEFT]: UKLayoutHRightToLeft,
+            },
+        };
+
+        const type = this.type;
+        const dir = (type == EUKTableViewType.VERTICAL) ? this.verticalDirection : this.horizontalDirection;
+        const LayoutClass = layoutMaps[type][dir];
+
+        const layout = new LayoutClass();
+        layout.paddingTop = this.paddingTop;
+        layout.paddingBottom = this.paddingBottom;
+        layout.paddingLeft = this.paddingLeft;
+        layout.paddingRight = this.paddingRight;
+        layout.spaceX = this.spaceX;
+        layout.spaceY = this.spaceY;
+        layout.recyleCell = cell => this.cycleCell(cell);
+        layout.sizeAtIndex = index => this.sizeAtIndex(index);
+        layout.cellAtIndex = index => this.cellAtIndex(index);
+        return layout;
     }
 
     private setupContentSize() {

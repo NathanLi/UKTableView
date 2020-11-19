@@ -2,15 +2,12 @@ import UKTableViewCell from "../cell/UKTableViewCell";
 import { uk } from "../util/uk";
 import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
+import { UKLayoutV } from "./UKLayoutV";
 
-export class UKLayoutVBottomToTop extends UKLayout {
+export class UKLayoutVBottomToTop extends UKLayoutV {
+    protected isTopToBottom = false;
+
     sideProperName = ESideType.height;
-
-    initLayout(layout: cc.Layout) {
-        this.space = layout.spacingY;
-        this.head = layout.paddingBottom;
-        this.tail = layout.paddingTop;
-    }
 
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
@@ -41,14 +38,14 @@ export class UKLayoutVBottomToTop extends UKLayout {
         });
 
         // 添加
-        let nextTop = top - this.head;
+        let nextTop = top - this.paddingTop;
         for (let index = count - 1; index >= 0; --index) {
             const curTop = nextTop;
             const side = this.sizeAtIndex(index);
             const curBottom = curTop - side;
 
             if (showedIndexs.indexOf(index) >= 0) {
-                nextTop = curBottom - this.space;
+                nextTop = curBottom - this.spaceY;
                 continue;
             }
 
@@ -68,7 +65,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
                 cell.__show();
             }
 
-            nextTop = curBottom - this.space;
+            nextTop = curBottom - this.spaceY;
             if (nextTop < visiableBottom) {
                 break; 
             }
@@ -94,7 +91,7 @@ export class UKLayoutVBottomToTop extends UKLayout {
         });
 
         const bottom = uk.getContentBottom(content);
-        let nextStart = bottom + this.head;
+        let nextStart = bottom + this.paddingTop;
         let layoutCount = 0;
         for (let index = 0; index < count; ++index) {
             const start = nextStart;
@@ -102,13 +99,13 @@ export class UKLayoutVBottomToTop extends UKLayout {
             const node = mapNodes[index];
 
             if (!node) {
-                nextStart = start + side + this.space;
+                nextStart = start + side + this.spaceY;
                 continue;
             }
 
             uk.setYByBottom(node, start, side);
 
-            nextStart = start + side + this.space;
+            nextStart = start + side + this.spaceY;
             layoutCount++;
 
             if (layoutCount == length) {

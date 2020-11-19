@@ -3,21 +3,21 @@ import { uk } from "../util/uk";
 import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
 
-export class UKLayoutVTopToBottom extends UKLayout {
-    sideProperName = ESideType.height;
+export class UKLayoutV extends UKLayout {
+    protected isTopToBottom = true;
 
+    sideProperName = ESideType.height;
+    
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
-        
         const top = uk.getContentTop(content);
-        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
 
+        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
         if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableTop - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
             return;
         }
 
         this._lastLayoutOffset = visiableTop;
-
         const children = content.children.slice();
         const showedIndexs: number[] = [];
 
@@ -34,9 +34,20 @@ export class UKLayoutVTopToBottom extends UKLayout {
             showedIndexs.push(cell.__index);
         });
 
+
         // 添加
         let nextTop = top - this.paddingTop;
-        for (let index = 0; index < count; ++index) {
+        let startIndex = this.isTopToBottom ? 0 : count - 1;
+        let endIndex = this.isTopToBottom ? count - 1 : 0;
+        let sign = this.isTopToBottom ? 1 : -1;
+
+        for (let index = 0; index < count - 1; ++index) {
+            
+
+
+        }
+
+        for (let index = count - 1; index >= 0; --index) {
             const curTop = nextTop;
             const side = this.sizeAtIndex(index);
             const curBottom = curTop - side;
@@ -65,53 +76,6 @@ export class UKLayoutVTopToBottom extends UKLayout {
             nextTop = curBottom - this.spaceY;
             if (nextTop < visiableBottom) {
                 break; 
-            }
-        }
-    }
-
-    fixPositions(scroll: cc.ScrollView, count: number): void {
-        if (scroll.content.childrenCount <= 0) {
-            return;
-        }
-
-        this._lastLayoutOffset = undefined;
-
-        const content = scroll.content;
-        const children = content.children;
-        const length = children.length;
-
-        const mapNodes: {[index: number]: cc.Node} = {};
-        children.forEach(node => {
-            const cell = node.getComponent(UKTableViewCell);
-            const index = cell.__index;
-            mapNodes[index] = node;
-        });
-
-        const top = uk.getContentTop(content);
-
-        let nextTop = top;
-        let lastSide = 0;
-        let layoutCount = 0;
-
-        for (let index = 0; index < count; ++index) {
-            nextTop = nextTop - ((index == 0) ? this.paddingTop : this.spaceY) - lastSide;
-
-            const curSide = this.sizeAtIndex(index);
-            lastSide = curSide;
-
-            const node = mapNodes[index];
-
-            if (!node) {
-                continue;
-            }
-
-            const curTop = nextTop;
-            uk.setYByTop(node, curTop, curSide);
-
-            layoutCount++;
-
-            if (layoutCount == length) {
-                break;
             }
         }
     }

@@ -745,7 +745,16 @@
     "scrollView": {
       "__id__": 8
     },
-    "itemEstimateSize": 0
+    "type": 0,
+    "paddingTop": 0,
+    "paddingBottom": 0,
+    "paddingLeft": 0,
+    "paddingRight": 0,
+    "spaceY": 0,
+    "spaceX": 0,
+    "itemEstimateSize": 0,
+    "verticalDirection": 0,
+    "horizontalDirection": 0
   },
   {
     "__type__": "cc.Canvas",

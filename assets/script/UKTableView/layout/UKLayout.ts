@@ -4,9 +4,12 @@ import { ESideType, IUKLayout } from "./IUKLayout";
 export class UKLayout implements IUKLayout {
     protected _lastLayoutOffset: number = undefined;
 
-    head: number = 0;
-    tail: number = 0;
-    space: number = 0;
+    paddingTop: number = 0;
+    paddingBottom: number = 0;
+    paddingLeft: number = 0;
+    paddingRight: number = 0;
+    spaceY: number = 0;
+    spaceX: number = 0;
 
     sideProperName = ESideType.height;
     minDiff = 1;
@@ -21,16 +24,12 @@ export class UKLayout implements IUKLayout {
         this.recyleCell = undefined;
     }
 
-    initLayout(layout: cc.Layout) {
-        throw '应该由子类实现';
-    }
-
     calContentSize(count: number): number {
         if (count <= 0) {
             return 0;
         }
 
-        let size = this.head + this.tail + (count - 1) * this.space;
+        let size = this.paddingTop + this.paddingBottom + (count - 1) * this.spaceY;
         for (let index = 0; index < count; ++index) {
             size += this.sizeAtIndex(index);
         }

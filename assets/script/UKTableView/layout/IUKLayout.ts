@@ -6,9 +6,13 @@ export enum ESideType {
 }
 
 export interface IUKLayout {
-    head: number;
-    tail: number;
-    space: number;
+    paddingTop: number;
+    paddingBottom: number;
+    paddingLeft: number;
+    paddingRight: number;
+    
+    spaceY: number;
+    spaceX: number;
 
     minDiff: number;
 
@@ -33,8 +37,6 @@ export interface IUKLayout {
      */
     recyleCell?: (cell: UKTableViewCell) => void;
     
-    initLayout(layout: cc.Layout): void;
-
     /**
      * 计算内容的总边长
      */
