@@ -163,7 +163,6 @@ export default class UKTableView extends cc.Component {
         this.cacheSide[index] = side;
         this.setupContentSize();
         this.layout.fixPositions(this.scrollView, this.count);
-        this.doLayout();
     }
 
     lateUpdate() {

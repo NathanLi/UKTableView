@@ -1,4 +1,5 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
+import { uk } from "../util/uk";
 import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
 
@@ -13,21 +14,15 @@ export class UKLayoutVTopToBottom extends UKLayout {
 
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
-        const contentHeight = content.height;
-        const scrollHeight = scroll.node.height;
-
         
-        const top = (1 - content.anchorY) * contentHeight;
-        const offset = scroll.getScrollOffset();
-        
-        const visiableStart = Math.min(top - offset.y, top);
-        const visiableEnd = visiableStart - scrollHeight;
+        const top = uk.getContentTop(content);
+        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
 
-        if (Math.abs(visiableStart - this.doLayoutOffset) < Math.max(this.minDiff, 0.1)) {
+        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableTop - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
             return;
         }
 
-        this.doLayoutOffset = visiableStart;
+        this._lastLayoutOffset = visiableTop;
 
         const children = content.children.slice();
         const showedIndexs: number[] = [];
@@ -35,9 +30,9 @@ export class UKLayoutVTopToBottom extends UKLayout {
         // 回收
         children.forEach(child => {
             const cell = child.getComponent(UKTableViewCell);
-            const end = child.y - child.anchorY * child.height;
-            const start = end + child.height;
-            const isOut = (start < (visiableEnd - 1)) || (end > (visiableStart + 1));
+            const bottom = uk.getBottom(child);
+            const top = bottom + child.height;
+            const isOut = (top < (visiableBottom - 1)) || (bottom > (visiableTop + 1));
             if (isOut) {
                 this.recyleCell(cell);
             }
@@ -46,36 +41,83 @@ export class UKLayoutVTopToBottom extends UKLayout {
         });
 
         // 添加
-        let nextStart = top - this.head;
+        let nextTop = top - this.head;
         for (let index = 0; index < count; ++index) {
-            const start = nextStart;
+            const curTop = nextTop;
             const side = this.sizeAtIndex(index);
-            const end = start - side;
+            const curBottom = curTop - side;
 
             if (showedIndexs.indexOf(index) >= 0) {
-                nextStart = end - this.space;
+                nextTop = curBottom - this.space;
                 continue;
             }
 
-            const isOut = (end > visiableStart) || (start < visiableEnd);
+            const isOut = (curBottom > visiableTop) || (curTop < visiableBottom);
             const visiable = !isOut;
             if (visiable) {
                 const cell = this.cellAtIndex(index);
-                cell.__index = index;
-
                 const node = cell.node;
 
+                cell.__index = index;
+
                 node.height = side;
-                node.y = (start - (1 - node.anchorY) * side);
+                uk.setYByTop(node, curTop, side);
 
                 content.addChild(node);
 
                 cell.__show();
             }
 
-            nextStart = end - this.space;
-            if (nextStart < visiableEnd) {
+            nextTop = curBottom - this.space;
+            if (nextTop < visiableBottom) {
                 break; 
+            }
+        }
+    }
+
+    fixPositions(scroll: cc.ScrollView, count: number): void {
+        if (scroll.content.childrenCount <= 0) {
+            return;
+        }
+
+        this._lastLayoutOffset = undefined;
+
+        const content = scroll.content;
+        const children = content.children;
+        const length = children.length;
+
+        const mapNodes: {[index: number]: cc.Node} = {};
+        children.forEach(node => {
+            const cell = node.getComponent(UKTableViewCell);
+            const index = cell.__index;
+            mapNodes[index] = node;
+        });
+
+        const top = uk.getContentTop(content);
+
+        let nextTop = top;
+        let lastSide = 0;
+        let layoutCount = 0;
+
+        for (let index = 0; index < count; ++index) {
+            nextTop = nextTop - ((index == 0) ? this.head : this.space) - lastSide;
+
+            const curSide = this.sizeAtIndex(index);
+            lastSide = curSide;
+
+            const node = mapNodes[index];
+
+            if (!node) {
+                continue;
+            }
+
+            const curTop = nextTop;
+            uk.setYByTop(node, curTop, curSide);
+
+            layoutCount++;
+
+            if (layoutCount == length) {
+                break;
             }
         }
     }

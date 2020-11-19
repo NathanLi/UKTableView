@@ -32,4 +32,16 @@ export class uk {
         const height = node.height;
         return -1 * node.anchorY * height;
     }
+
+    static getVisiableVertical(scroll: cc.ScrollView): [number, number] {
+        const content = scroll.content;
+        const top = this.getContentTop(content);
+        const scrollHeight = scroll.node.height;
+
+        const offset = scroll.getScrollOffset();
+        const visiableTop = Math.min(top - offset.y, top);
+        const visiableBottom = visiableTop - scrollHeight;
+        
+        return [visiableTop, visiableBottom];
+    }
 }
