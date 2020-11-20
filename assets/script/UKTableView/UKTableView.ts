@@ -1,9 +1,7 @@
 import UKTableViewCell from "./cell/UKTableViewCell";
 import { IUKLayout } from "./layout/IUKLayout";
-import { UKLayoutHLeftToRight } from "./layout/UKLayoutHLeftToRight";
-import { UKLayoutHRightToLeft } from "./layout/UKLayoutHRightToLeft";
-import { UKLayoutVBottomToTop } from "./layout/UKLayoutVBottomToTop";
-import { UKLayoutVTopToBottom } from "./layout/UKLayoutVTopToBottom";
+import { UKLayoutHorizontal } from "./layout/UKLayoutHorizontal";
+import { UKLayoutVertical } from "./layout/UKLayoutVertical";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
@@ -176,21 +174,12 @@ export default class UKTableView extends cc.Component {
 
     private createLayout() {
         const layoutMaps = {
-            [EUKTableViewType.VERTICAL]: {
-                [EUKTableViewVerticalDirection.TOP_TO_BOTTOM]: UKLayoutVTopToBottom,
-                [EUKTableViewVerticalDirection.BOTTOM_TO_TOP]: UKLayoutVBottomToTop,
-            },
-            [EUKTableViewType.HORIZONTAL]: {
-                [EUKTableViewHorizontalDirection.LEFT_TO_RIGHT]: UKLayoutHLeftToRight,
-                [EUKTableViewHorizontalDirection.RIGHT_TO_LEFT]: UKLayoutHRightToLeft,
-            },
+            [EUKTableViewType.VERTICAL]: () => new UKLayoutVertical(this.verticalDirection == EUKTableViewVerticalDirection.TOP_TO_BOTTOM),
+            [EUKTableViewType.HORIZONTAL]: () => new UKLayoutHorizontal(this.horizontalDirection == EUKTableViewHorizontalDirection.LEFT_TO_RIGHT),
         };
 
-        const type = this.type;
-        const dir = (type == EUKTableViewType.VERTICAL) ? this.verticalDirection : this.horizontalDirection;
-        const LayoutClass = layoutMaps[type][dir];
+        const layout: IUKLayout = layoutMaps[this.type]();
 
-        const layout = new LayoutClass();
         layout.paddingTop = this.paddingTop;
         layout.paddingBottom = this.paddingBottom;
         layout.paddingLeft = this.paddingLeft;
@@ -208,8 +197,6 @@ export default class UKTableView extends cc.Component {
         const side = this.calContentSide();
 
         content[this.layout.sideProperName] = side;
-
-        cc.log('更新内容大小：', side);
 
         return side;
     }

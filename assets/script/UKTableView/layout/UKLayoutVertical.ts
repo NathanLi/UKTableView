@@ -3,8 +3,13 @@ import { uk } from "../util/uk";
 import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
 
-export class UKLayoutV extends UKLayout {
+export class UKLayoutVertical extends UKLayout {
     protected isTopToBottom = true;
+
+    constructor(isTopToBottom: boolean) {
+        super();
+        this.isTopToBottom = isTopToBottom;
+    }
 
     sideProperName = ESideType.height;
     
