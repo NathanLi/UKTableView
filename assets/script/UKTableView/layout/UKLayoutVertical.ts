@@ -5,14 +5,13 @@ import { UKLayout } from "./UKLayout";
 
 export class UKLayoutVertical extends UKLayout {
     protected isTopToBottom = true;
-
+    sideProperName = ESideType.height;
+    
     constructor(isTopToBottom: boolean) {
         super();
         this.isTopToBottom = isTopToBottom;
     }
 
-    sideProperName = ESideType.height;
-    
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
         const top = uk.getContentTop(content);
