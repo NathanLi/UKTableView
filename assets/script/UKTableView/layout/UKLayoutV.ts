@@ -36,30 +36,28 @@ export class UKLayoutV extends UKLayout {
 
 
         // 添加
-        let nextTop = top - this.paddingTop;
-        let startIndex = this.isTopToBottom ? 0 : count - 1;
-        let endIndex = this.isTopToBottom ? count - 1 : 0;
-        let sign = this.isTopToBottom ? 1 : -1;
-
-        for (let index = 0; index < count - 1; ++index) {
-            
-
-
+        let startIndex = 0;
+        let sign = 1;
+        if (!this.isTopToBottom) {
+            startIndex = count - 1;
+            sign = -1;
         }
-
-        for (let index = count - 1; index >= 0; --index) {
+        
+        let nextTop = top - this.paddingTop;
+        for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
             const curTop = nextTop;
             const side = this.sizeAtIndex(index);
             const curBottom = curTop - side;
 
+            nextTop = curBottom - this.spaceY;
+
             if (showedIndexs.indexOf(index) >= 0) {
-                nextTop = curBottom - this.spaceY;
                 continue;
             }
 
-            const isOut = (curBottom > visiableTop) || (curTop < visiableBottom);
+            const isOut = (curBottom >= visiableTop) || (curTop <= visiableBottom);
             const visiable = !isOut;
-            if (visiable) {
+            if (visiable) { 
                 const cell = this.cellAtIndex(index);
                 const node = cell.node;
 
@@ -73,9 +71,56 @@ export class UKLayoutV extends UKLayout {
                 cell.__show();
             }
 
-            nextTop = curBottom - this.spaceY;
             if (nextTop < visiableBottom) {
                 break; 
+            }
+        }
+    }
+
+    fixPositions(scroll: cc.ScrollView, count: number): void {
+        if (scroll.content.childrenCount <= 0) {
+            return;
+        }
+
+        this._lastLayoutOffset = undefined;
+
+        const content = scroll.content;
+        const children = content.children;
+        const length = children.length;
+        
+        const mapNodes: {[index: number]: cc.Node} = {};
+        children.forEach(node => {
+            const cell = node.getComponent(UKTableViewCell);
+            const index = cell.__index;
+            mapNodes[index] = node;
+        });
+
+        
+        let startIndex = 0;
+        let sign = 1;
+        if (!this.isTopToBottom) {
+            startIndex = count - 1;
+            sign = -1;
+        }
+        
+        let layoutCount = 0;
+        let nextTop = uk.getContentTop(content) - this.paddingTop;
+        for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
+            const top = nextTop;
+            const side = this.sizeAtIndex(index);
+            const node = mapNodes[index];
+
+            nextTop = top - side - this.spaceY;
+
+            if (!node) {
+                continue;
+            }
+
+            uk.setYByTop(node, top, side);
+
+            layoutCount++;
+            if (layoutCount == length) {
+                break;
             }
         }
     }
