@@ -15,6 +15,14 @@ export class uk {
         node.y = top - (1 - node.anchorY) * height;
     }
 
+    static setHight(node: cc.Node, height: number): void {
+        node.height = height;
+    }
+
+    static setWidth(node: cc.Node, width: number): void {
+        node.width = width;
+    }
+
     static setXByLeft(node: cc.Node, left: number, width?: number): void {
         if (width === undefined) {
             width = node.width;

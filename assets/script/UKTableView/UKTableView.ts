@@ -155,6 +155,7 @@ export default class UKTableView extends cc.Component {
             throw 'you should set dataSource!';
         }
 
+        this.resetCache();
         this.setupLayoutArgs();
         this.setupContentSize();
         this.doLayout();
@@ -166,10 +167,16 @@ export default class UKTableView extends cc.Component {
 
         cclayout && (cclayout.enabled = false);
 
-        this.cacheSide = {};
-
         this.layout && (this.layout.destory());
         this.layout = this.createLayout();        
+    }
+
+    private resetCache() {
+        this.cacheSide = {
+            0: undefined,
+            1: undefined,
+            2: undefined
+        };
     }
 
     private createLayout() {
@@ -241,6 +248,10 @@ export default class UKTableView extends cc.Component {
     }
 
     private onCellSizeChanged(cell: UKTableViewCell) {
+        if (!cell.node.parent) {
+            return;
+        }
+
         const index = cell.__index;
         const side = cell.node[this.layout.sideProperName];
 

@@ -17,7 +17,8 @@ export default class UKTableViewCell extends cc.Component {
         this.__sizeChangedCB = undefined;
     }
 
-    __show() {
+    __show(atIndex: number) {
+        this.__index = atIndex;
         this.getComponent(cc.Label).string = `index = ${this.__index}, y = ${this.node.y}, height = ${this.node.height}`;
     }
 

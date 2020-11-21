@@ -14,71 +14,17 @@ export class UKLayoutVertical extends UKLayout {
 
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
-        const top = uk.getContentTop(content);
-
+        
         const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
         if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableTop - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
             return;
         }
-
-        this._lastLayoutOffset = visiableTop;
-        const children = content.children.slice();
-        const showedIndexs: number[] = [];
-
-        // 回收
-        children.forEach(child => {
-            const cell = child.getComponent(UKTableViewCell);
-            const bottom = uk.getBottom(child);
-            const top = bottom + child.height;
-            const isOut = (top < (visiableBottom - 1)) || (bottom > (visiableTop + 1));
-            if (isOut) {
-                this.recyleCell(cell);
-            }
-            
-            showedIndexs.push(cell.__index);
-        });
-
-
-        // 添加
-        let startIndex = 0;
-        let sign = 1;
-        if (!this.isTopToBottom) {
-            startIndex = count - 1;
-            sign = -1;
-        }
         
-        let nextTop = top - this.paddingTop;
-        for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
-            const curTop = nextTop;
-            const side = this.sizeAtIndex(index);
-            const curBottom = curTop - side;
-
-            nextTop = curBottom - this.spaceY;
-
-            if (showedIndexs.indexOf(index) >= 0) {
-                continue;
-            }
-
-            const isOut = (curBottom >= visiableTop) || (curTop <= visiableBottom);
-            const visiable = !isOut;
-            if (visiable) { 
-                const cell = this.cellAtIndex(index);
-                const node = cell.node;
-
-                cell.__index = index;
-
-                node.height = side;
-                uk.setYByTop(node, curTop, side);
-
-                content.addChild(node);
-
-                cell.__show();
-            }
-
-            if (nextTop < visiableBottom) {
-                break; 
-            }
-        }
+        this._lastLayoutOffset = visiableTop;
+        
+        const cells = this.getChildCells(content);
+        this.doCycleCell(cells, visiableTop, visiableBottom);
+        this.doFillCell(scroll, cells, count);
     }
 
     fixPositions(scroll: cc.ScrollView, count: number): void {
@@ -89,26 +35,16 @@ export class UKLayoutVertical extends UKLayout {
         this._lastLayoutOffset = undefined;
 
         const content = scroll.content;
-        const children = content.children;
-        const length = children.length;
+        const cells = this.getChildCells(content);
         
         const mapNodes: {[index: number]: cc.Node} = {};
-        children.forEach(node => {
-            const cell = node.getComponent(UKTableViewCell);
-            const index = cell.__index;
-            mapNodes[index] = node;
-        });
+        cells.forEach(cell => mapNodes[cell.__index] = cell.node);
 
-        
-        let startIndex = 0;
-        let sign = 1;
-        if (!this.isTopToBottom) {
-            startIndex = count - 1;
-            sign = -1;
-        }
-        
+        const length = cells.length;
         let layoutCount = 0;
         let nextTop = uk.getContentTop(content) - this.paddingTop;
+        let [startIndex, sign] = this.getIteratorAugs(count);
+
         for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
             const top = nextTop;
             const side = this.sizeAtIndex(index);
@@ -122,8 +58,7 @@ export class UKLayoutVertical extends UKLayout {
 
             uk.setYByTop(node, top, side);
 
-            layoutCount++;
-            if (layoutCount == length) {
+            if ((++layoutCount) == length) {
                 break;
             }
         }
@@ -136,4 +71,65 @@ export class UKLayoutVertical extends UKLayout {
     getSpace() {
         return this.spaceY;
     }
+
+    private doCycleCell(cells: UKTableViewCell[], visiableTop: number, visiableBottom: number) {
+        cells.forEach(cell => {
+            const child = cell.node;
+            const bottom = uk.getBottom(child);
+            const top = bottom + child.height;
+            const isOut = (top < (visiableBottom - 1)) || (bottom > (visiableTop + 1));
+            if (isOut) {
+                this.recyleCell(cell);
+            }
+        });
+    }
+
+    private doFillCell(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
+        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
+        const content = scroll.content;
+
+        let showedIndexs = showedCells.map(c => c.__index);
+        let nextTop = uk.getContentTop(content) - this.paddingTop;
+        let [startIndex, sign] = this.getIteratorAugs(eleCount);
+        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
+            const curTop = nextTop;
+            const side = this.sizeAtIndex(index);
+            const curBottom = curTop - side;
+
+            nextTop = curBottom - this.spaceY;
+            if (showedIndexs.indexOf(index) >= 0) {
+                continue;
+            }
+
+            const isOut = (curBottom >= visiableTop) || (curTop <= visiableBottom);
+            const visiable = !isOut;
+            if (visiable) { 
+                const cell = this.cellAtIndex(index);
+                const node = cell.node;
+
+                cell.__show(index);
+
+                uk.setHight(node, side);
+                uk.setYByTop(node, curTop, side);
+
+                content.addChild(node);
+            }
+
+            if (nextTop < visiableBottom) {
+                break; 
+            }
+        }
+    }
+
+    private getIteratorAugs(count: number) {
+        let startIndex = 0;
+        let sign = 1;
+        if (!this.isTopToBottom) {
+            startIndex = count - 1;
+            sign = -1;
+        }
+
+        return [startIndex, sign];
+    }
+
 }

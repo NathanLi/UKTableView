@@ -52,4 +52,10 @@ export interface IUKLayout {
      * 重新布局(不会回收、添加 cell)
      */
     fixPositions(scrollView: cc.ScrollView, count: number): void;
+
+    /**
+     * 获取 content 中的所有的 cell
+     * @param content 
+     */
+    getChildCells(content: cc.Node): UKTableViewCell[];
 }

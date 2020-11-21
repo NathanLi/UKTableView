@@ -37,6 +37,12 @@ export class UKLayout implements IUKLayout {
         return size;
     }
 
+    getChildCells(content: cc.Node): UKTableViewCell[] {
+        return content.children
+            .map(node => node.getComponent(UKTableViewCell))
+            .filter(c => c != null);
+    }
+
     doLayout(scollView: cc.ScrollView, count: number): void {
         throw '应该由子类实现';
     }

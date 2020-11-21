@@ -64,14 +64,12 @@ export class UKLayoutHorizontal extends UKLayout {
                 const cell = this.cellAtIndex(index);
                 const node = cell.node;
 
-                cell.__index = index;
-
                 node.width = side;
                 uk.setXByRight(node, curRight, side);
 
                 content.addChild(node);
 
-                cell.__show();
+                cell.__show(index);
             }
 
             if (nextRight < visiableLeft) {
