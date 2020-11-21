@@ -14,7 +14,6 @@ export class UKLayoutHorizontal extends UKLayout {
 
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
-        const contentRight = uk.getContentRight(content);
 
         const [visiableLeft, visiableRight] = uk.getVisiableHorizontal(scroll);
         if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableLeft - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
