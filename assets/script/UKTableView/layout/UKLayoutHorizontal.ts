@@ -22,60 +22,10 @@ export class UKLayoutHorizontal extends UKLayout {
         }
 
         this._lastLayoutOffset = visiableLeft;
-        const children = content.children.slice();
-        const showedIndexs: number[] = [];
 
-        // 回收
-        children.forEach(child => {
-            const cell = child.getComponent(UKTableViewCell);
-            const left = uk.getLeft(child);
-            const right = left + child.width;
-            const isOut = (right < (visiableLeft - 1)) || (left > (visiableRight + 1));
-            if (isOut) {
-                this.recyleCell(cell);
-            }
-            
-            showedIndexs.push(cell.__index);
-        });
-
-        // 添加(由右往左)
-        let startIndex = count - 1;
-        let sign = -1;
-        if (!this.isLeftToRight) {
-            startIndex = 0;
-            sign = 1;
-        }
-        
-        let nextRight = contentRight - this.paddingRight;
-        for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
-            const curRight = nextRight;
-            const side = this.sizeAtIndex(index);
-            const curLeft = curRight - side;
-
-            nextRight = curLeft - this.spaceX;
-
-            if (showedIndexs.indexOf(index) >= 0) {
-                continue;
-            }
-
-            const isOut = (curLeft >= visiableRight) || (curRight <= visiableLeft);
-            const visiable = !isOut;
-            if (visiable) { 
-                const cell = this.cellAtIndex(index);
-                const node = cell.node;
-
-                node.width = side;
-                uk.setXByRight(node, curRight, side);
-
-                content.addChild(node);
-
-                cell.__show(index);
-            }
-
-            if (nextRight < visiableLeft) {
-                break; 
-            }
-        }
+        const cells = this.getChildCells(content);
+        this.doCycleCell(cells, visiableLeft, visiableRight);
+        this.doFillCell(scroll, cells, count);
     }
 
     fixPositions(scroll: cc.ScrollView, count: number): void {
@@ -86,25 +36,14 @@ export class UKLayoutHorizontal extends UKLayout {
         this._lastLayoutOffset = undefined;
 
         const content = scroll.content;
-        const children = content.children;
-        const length = children.length;
+        const cells = this.getChildCells(content);
         
         const mapNodes: {[index: number]: cc.Node} = {};
-        children.forEach(node => {
-            const cell = node.getComponent(UKTableViewCell);
-            const index = cell.__index;
-            mapNodes[index] = node;
-        });
+        cells.forEach(cell => mapNodes[cell.__index] = cell.node);
 
-        
-        let startIndex = count - 1;
-        let sign = -1;
-        if (!this.isLeftToRight) {
-            startIndex = 0;
-            sign = 1;
-        }
-        
+        const length = cells.length;
         let layoutCount = 0;
+        let [startIndex, sign] = this.getIteratorAugs(count);
         let nextRight = uk.getContentRight(content) - this.paddingRight;
         for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
             const right = nextRight;
@@ -132,5 +71,66 @@ export class UKLayoutHorizontal extends UKLayout {
 
     getSpace() {
         return this.spaceX;
+    }
+
+    private doCycleCell(cells: UKTableViewCell[], visiableLeft: number, visiableRight: number) {
+        cells.forEach(cell => {
+            const child = cell.node;
+            const left = uk.getLeft(child);
+            const right = left + child.width;
+            const isOut = (right < (visiableLeft - 1)) || (left > (visiableRight + 1));
+            if (isOut) {
+                this.recyleCell(cell);
+            }
+        });
+    }
+
+    private doFillCell(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
+        const [visiableLeft, visiableRight] = uk.getVisiableHorizontal(scroll);
+        const content = scroll.content;
+
+        let showedIndexs = showedCells.map(c => c.__index);
+        let nextRight = uk.getContentRight(content) - this.paddingRight;
+        let [startIndex, sign] = this.getIteratorAugs(eleCount);
+        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
+            const curRight = nextRight;
+            const side = this.sizeAtIndex(index);
+            const curLeft = curRight - side;
+
+            nextRight = curLeft - this.spaceX;
+
+            if (showedIndexs.indexOf(index) >= 0) {
+                continue;
+            }
+
+            const isOut = (curLeft >= visiableRight) || (curRight <= visiableLeft);
+            const visiable = !isOut;
+            if (visiable) { 
+                const cell = this.cellAtIndex(index);
+                const node = cell.node;
+
+                uk.setWidth(node, side);
+                uk.setXByRight(node, curRight, side);
+
+                content.addChild(node);
+
+                cell.__show(index);
+            }
+
+            if (nextRight < visiableLeft) {
+                break; 
+            }
+        }
+    }
+
+    private getIteratorAugs(count: number) {
+        let startIndex = 0;
+        let sign = 1;
+        if (this.isLeftToRight) {
+            startIndex = count - 1;
+            sign = -1;
+        }
+
+        return [startIndex, sign];
     }
 }
