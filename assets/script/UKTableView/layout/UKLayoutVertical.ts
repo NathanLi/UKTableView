@@ -128,4 +128,12 @@ export class UKLayoutVertical extends UKLayout {
             }
         }
     }
+
+    getPaddingCount() {
+        return this.paddingTop + this.paddingBottom;
+    }
+
+    getSpace() {
+        return this.spaceY;
+    }
 }

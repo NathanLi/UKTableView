@@ -128,5 +128,11 @@ export class UKLayoutHorizontal extends UKLayout {
         }
     }
 
+    getPaddingCount() {
+        return this.paddingLeft + this.paddingRight;
+    }
 
+    getSpace() {
+        return this.spaceX;
+    }
 }

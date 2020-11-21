@@ -29,7 +29,7 @@ export class UKLayout implements IUKLayout {
             return 0;
         }
 
-        let size = this.paddingTop + this.paddingBottom + (count - 1) * this.spaceY;
+        let size = this.getPaddingCount() + (count - 1) * this.getSpace();
         for (let index = 0; index < count; ++index) {
             size += this.sizeAtIndex(index);
         }
@@ -42,6 +42,14 @@ export class UKLayout implements IUKLayout {
     }
 
     fixPositions(scollView: cc.ScrollView, count: number): void {
+        throw '应该由子类实现';
+    }
+
+    protected getPaddingCount(): number {
+        throw '应该由子类实现';
+    }
+
+    protected getSpace(): number {
         throw '应该由子类实现';
     }
 }
