@@ -155,6 +155,7 @@ export default class UKTableView extends cc.Component {
             throw 'you should set dataSource!';
         }
 
+        this.recycleAllCells();
         this.resetCache();
         this.setupLayoutArgs();
         this.setupContentSize();
@@ -169,6 +170,14 @@ export default class UKTableView extends cc.Component {
 
         this.layout && (this.layout.destory());
         this.layout = this.createLayout();        
+    }
+
+    private recycleAllCells() {
+        if (this.layout) {
+            this.layout.getChildCells(this.content).forEach(cell => {
+                this.cycleCell(cell);
+            });
+        }
     }
 
     private resetCache() {
