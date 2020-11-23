@@ -175,8 +175,15 @@ export default class UKTableView extends cc.Component {
 
     }
 
-    scrollTo(index: number): void {
-        // TODO:
+    /**
+     * 
+     * @param index 滚动到的目标
+     * @param timeInSecond 动画时长
+     * @param attenuated 滚动加速度是否衰减
+     */
+    scrollToIndex(index: number, timeInSecond: number = 0, attenuated = true): void {
+        const pos = this.layout.getPositionOfIndex(this.scrollView, index, this.count);
+        this.scrollView.scrollToOffset(pos, timeInSecond, attenuated);
     }
 
     visiableCells(): UKTableViewCell[] {

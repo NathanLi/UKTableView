@@ -58,4 +58,10 @@ export interface IUKLayout {
      * @param content 
      */
     getChildCells(content: cc.Node): UKTableViewCell[];
+
+    /**
+     * 获取 index 所在的位置
+     * @param index 
+     */
+    getPositionOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number): cc.Vec2;
 }

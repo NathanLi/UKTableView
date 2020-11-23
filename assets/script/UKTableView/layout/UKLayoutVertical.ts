@@ -72,6 +72,30 @@ export class UKLayoutVertical extends UKLayout {
         return this.spaceY;
     }
 
+    getPositionOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {
+        let [startIndex, sign] = this.getIteratorAugs(eleCount);
+        let top = uk.getContentTop(scroll.content) - this.paddingTop;
+        let pos: cc.Vec2 = cc.Vec2.ZERO;
+        let toIndex = this.isTopToBottom ? eleIndex : (eleCount - (eleIndex - 1));
+
+        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
+            if (index == toIndex) {
+                break;
+            }
+
+            top = top - this.sizeAtIndex(index) - this.spaceY;
+        }
+
+        if (this.isTopToBottom) {
+            pos.y = top;
+        } else {
+            let side = this.sizeAtIndex(eleIndex);
+            pos.y = Math.max(top - side - scroll.node.height, 0);
+        }
+
+        return pos;
+    }
+
     private doCycleCell(cells: UKTableViewCell[], visiableTop: number, visiableBottom: number) {
         cells.forEach(cell => {
             const child = cell.node;
