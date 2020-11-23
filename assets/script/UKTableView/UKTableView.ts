@@ -161,6 +161,32 @@ export default class UKTableView extends cc.Component {
         this.setupContentSize();
         this.doLayout();
     }
+    
+    insert(indexs: number[]): void {
+        // TODO:
+        this.count += indexs.length;
+        
+    }
+
+    delete(indexs: number[]): void {
+        // TODO:
+        this.count -= indexs.length;
+
+
+    }
+
+    scrollTo(index: number): void {
+        // TODO:
+    }
+
+    visiableCells(): UKTableViewCell[] {
+        return this.layout.getChildCells(this.content);
+    }
+
+    visiableCell(index: number): UKTableViewCell {
+        const cells = this.visiableCells();
+        return cells.find(c => c.__index == index);
+    }
 
     private setupLayoutArgs() {
         const ndContent = this.content;
