@@ -131,12 +131,11 @@ export class UKLayoutVertical extends UKLayout {
                 const cell = this.cellAtIndex(index);
                 const node = cell.node;
 
-                cell.__show(index);
-
                 uk.setHight(node, side);
                 uk.setYByTop(node, curTop, side);
-
                 content.addChild(node);
+                
+                cell.__show(index);
             }
 
             if (nextTop < visiableBottom) {
