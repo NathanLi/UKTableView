@@ -27,7 +27,7 @@ export default class Test extends cc.Component implements UKTableViewDataSrouce 
         this.tableView.reloadData(100);
 
         this.scheduleOnce(() => {
-            this.tableView.scrollToIndex(12, 0.3, true);
+            this.tableView.scrollToIndex(100, 0.3, true);
         }, 5);
     }
 

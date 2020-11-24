@@ -182,7 +182,8 @@ export default class UKTableView extends cc.Component {
      * @param attenuated 滚动加速度是否衰减
      */
     scrollToIndex(index: number, timeInSecond: number = 0, attenuated = true): void {
-        const pos = this.layout.getPositionOfIndex(this.scrollView, index, this.count);
+        const toIndex = Math.min(Math.max(index, 0), this.count - 1);
+        const pos = this.layout.getPositionOfIndex(this.scrollView, toIndex, this.count);
         this.scrollView.scrollToOffset(pos, timeInSecond, attenuated);
     }
 
