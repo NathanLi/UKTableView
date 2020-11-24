@@ -5,7 +5,7 @@ import { UKLayoutVertical } from "./layout/UKLayoutVertical";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
-const {ccclass, property} = cc._decorator;
+const {ccclass, property, executionOrder} = cc._decorator;
 
 export enum EUKTableViewType {
     VERTICAL = 0,
@@ -23,6 +23,7 @@ export enum EUKTableViewHorizontalDirection {
 }
 
 @ccclass
+@executionOrder(-1)
 export default class UKTableView extends cc.Component {
     @property(cc.ScrollView)
     scrollView: cc.ScrollView = null;
@@ -163,16 +164,34 @@ export default class UKTableView extends cc.Component {
     }
     
     insert(indexs: number[]): void {
-        // TODO:
+        if (!indexs || !indexs.length) {
+            return;
+        }
+
         this.count += indexs.length;
-        
+        this.resetCache();
+        this.setupContentSize();
+        this.fixPositions();
+        this.doLayout();
     }
 
     delete(indexs: number[]): void {
-        // TODO:
+        if (!indexs || !indexs.length) {
+            return;
+        }
+
+        for (let i = 0; i < indexs.length; ++i) {
+            const index = indexs[i];
+            if (index < 0 || index >= this.count) {
+                throw new Error(`${index} not exist!`);
+            }
+        }
+
         this.count -= indexs.length;
-
-
+        this.resetCache();
+        this.setupContentSize();
+        this.fixPositions();
+        this.doLayout();
     }
 
     /**
@@ -300,6 +319,10 @@ export default class UKTableView extends cc.Component {
 
         this.cacheSide[index] = side;
         this.setupContentSize();
+        this.fixPositions();
+    }
+
+    private fixPositions() {
         this.layout.fixPositions(this.scrollView, this.count);
     }
 

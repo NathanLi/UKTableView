@@ -45,6 +45,7 @@ export interface IUKLayout {
     /**
      * 开始布局(会有回收、添加cell)
      * @param scrollView 
+     * @param count 元素的总数量
      */
     doLayout(scrollView: cc.ScrollView, count: number): void;
 
