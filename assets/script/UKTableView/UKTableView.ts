@@ -89,7 +89,7 @@ export default class UKTableView extends cc.Component {
 
     private cacheSide: {[index: number]: number} = {};
     private cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
-    private registCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
+    private registedCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
 
     delegate?: UKTableViewDelegate;
     dataSource: UKTableViewDataSrouce;
@@ -103,27 +103,42 @@ export default class UKTableView extends cc.Component {
     }
 
     onLoad() {
+        this.regsiteFromContent();
     }
 
     onDestroy() {
+        for (let key in this.cacheCell) {
+            this.cacheCell[key].forEach(v => v.destroy());
+        }
+
+        for (let key in this.registedCell) {
+            this.registedCell[key].destroy();
+        }
+
         if (this.layout) {
             this.layout.destory();
         }
+
+        this.dataSource = null;
+        this.delegate = null;
     }
 
-    onEnable() {
+    private regsiteFromContent() {
+        this.content.children.slice().forEach(node => {
+            const comp = node.getComponent(UKTableViewCell);
+            if (comp && comp.identifier) {
+                this.registe(node, comp.identifier);
+            }
+        });
 
-    }
-
-    onDisable() {
-
+        this.content.removeAllChildren();
     }
 
     registe(source: cc.Node | cc.Prefab, identifier?: string): void {
         if (!identifier) {
             identifier = 'default';
         }
-        this.registCell[identifier] = source;
+        this.registedCell[identifier] = source;
     }
 
     dequeueReusableCell(identifier?: string): UKTableViewCell {
@@ -136,7 +151,7 @@ export default class UKTableView extends cc.Component {
             return cacheCells.pop();
         }
 
-        const souce = this.registCell[identifier];
+        const souce = this.registedCell[identifier];
         const node = cc.instantiate(souce) as cc.Node;
 
         let comp = node.getComponent(UKTableViewCell);
