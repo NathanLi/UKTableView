@@ -72,28 +72,26 @@ export class UKLayoutHorizontal extends UKLayout {
         return this.spaceX;
     }
 
-    getPositionOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {
-        let [startIndex, sign] = this.getIteratorAugs(eleCount);
-        let right = uk.getContentRight(scroll.content) - this.paddingRight;
-        let pos: cc.Vec2 = scroll.getScrollOffset();
-        let toIndex = this.isLeftToRight ? (eleCount - (eleIndex - 1)) : eleIndex;
+    getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {
+        let [startIndex, sign] = this.isLeftToRight ? [0, 1] : [eleCount - 1, -1];
+        let left = 0 + this.paddingLeft;
+        let toIndex = this.isLeftToRight ? eleIndex : (eleCount - (eleIndex - 1));
 
         for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
             if (index == toIndex) {
                 break;
             }
 
-            right = right - this.sizeAtIndex(index) - this.spaceX;
+            left = left + this.sizeAtIndex(index) + this.spaceX;
         }
 
-        if (this.isLeftToRight) {
-            pos.x = right;
-        } else {
+        let x = left;
+        if (!this.isLeftToRight) {
             let side = this.sizeAtIndex(eleIndex);
-            pos.x = Math.max(right - side - scroll.node.height, 0);
+            x = Math.max(left + side, 0);
         }
 
-        return pos;
+        return cc.v2(x, scroll.getScrollOffset().y);
     }
 
     private doCycleCell(cells: UKTableViewCell[], visiableLeft: number, visiableRight: number) {

@@ -61,8 +61,8 @@ export interface IUKLayout {
     getChildCells(content: cc.Node): UKTableViewCell[];
 
     /**
-     * 获取 index 所在的位置
+     * 获取 index 相对 scrollView 左上角原点的偏移 (永远为正)
      * @param index 
      */
-    getPositionOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number): cc.Vec2;
+    getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number): cc.Vec2;
 }

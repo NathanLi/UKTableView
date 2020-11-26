@@ -217,7 +217,8 @@ export default class UKTableView extends cc.Component {
      */
     scrollToIndex(index: number, timeInSecond: number = 0, attenuated = true): void {
         const toIndex = Math.min(Math.max(index, 0), this.count - 1);
-        const pos = this.layout.getPositionOfIndex(this.scrollView, toIndex, this.count);
+        cc.log('toIndex: ', toIndex);
+        const pos = this.layout.getOffsetOfIndex(this.scrollView, toIndex, this.count);
         this.scrollView.scrollToOffset(pos, timeInSecond, attenuated);
     }
 

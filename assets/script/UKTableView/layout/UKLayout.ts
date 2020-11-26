@@ -59,7 +59,7 @@ export class UKLayout implements IUKLayout {
         throw '应该由子类实现';
     }
 
-    getPositionOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number): cc.Vec2 {
+    getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number): cc.Vec2 {
         throw '应该由子类实现';
     }
 }

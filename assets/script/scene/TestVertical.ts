@@ -24,6 +24,14 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
         this.tableView.reloadData(this.count);
     }
 
+    clickToTop() {
+        this.tableView.scrollToIndex(0, 0.3);
+    }
+
+    clickToBottom() {
+        this.tableView.scrollToIndex(32, 0.3);
+    }
+
     // MARK: UKTableViewDataSrouce
     cellAtIndex(index: number): UKTableViewCell {
         const cell = this.tableView.dequeueReusableCell();
