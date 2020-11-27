@@ -9,6 +9,9 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
     @property(UKTableView)
     private tableView: UKTableView = null;
 
+    @property(cc.EditBox)
+    private edbIndex: cc.EditBox = null;
+
     private count = 40;
 
     onLoad() {
@@ -24,12 +27,13 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
         this.tableView.reloadData(this.count);
     }
 
-    clickToTop() {
-        this.tableView.scrollToIndex(0, 0.3);
-    }
+    clickToIndex() {
+        const index = Number(this.edbIndex.string);
+        if (index === NaN) {
+            return;
+        }
 
-    clickToBottom() {
-        this.tableView.scrollToIndex(32, 0.3);
+        this.tableView.scrollToIndex(index, 0.3);
     }
 
     // MARK: UKTableViewDataSrouce
