@@ -75,7 +75,7 @@ export class UKLayoutVertical extends UKLayout {
     getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {
         let [startIndex, sign] = this.getIteratorAugs(eleCount);
         let top = 0 + this.paddingTop;
-        let toIndex = this.isTopToBottom ? eleIndex : (eleCount - (eleIndex - 1));
+        let toIndex = eleIndex;
 
         for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
             if (index == toIndex) {
@@ -86,11 +86,6 @@ export class UKLayoutVertical extends UKLayout {
         }
 
         let y = top;
-        if (!this.isTopToBottom) {
-            let side = this.sizeAtIndex(eleIndex);
-            y = Math.max(top + side, 0);
-        }
-
         return cc.v2(scroll.getScrollOffset().x, y);
     }
 
