@@ -43,6 +43,12 @@ export interface IUKLayout {
     calContentSize(count: number): number;
 
     /**
+     * 根据索引删除可见的 cells
+     * @param indexs 
+     */
+    deleteCellAtIndexs(content: cc.Node, indexs: number[]): void;
+
+    /**
      * 开始布局(会有回收、添加cell)
      * @param scrollView 
      * @param count 元素的总数量

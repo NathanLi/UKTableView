@@ -19,6 +19,7 @@ export default class UKTableViewCell extends cc.Component {
 
     __show(atIndex: number) {
         this.__index = atIndex;
+        cc.log(`show(${atIndex})`);
     }
 
     private onSizeChanged() {

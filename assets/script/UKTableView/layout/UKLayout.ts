@@ -43,6 +43,15 @@ export class UKLayout implements IUKLayout {
             .filter(c => c != null);
     }
 
+    deleteCellAtIndexs(content: cc.Node, indexs: number[]): void {
+        const cells = this.getChildCells(content);
+        cells.forEach(cell => {
+            if (indexs.indexOf(cell.__index) >= 0) {
+                this.recyleCell(cell);
+            }
+        });
+    }
+
     doLayout(scollView: cc.ScrollView, count: number): void {
         throw '应该由子类实现';
     }

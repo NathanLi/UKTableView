@@ -60,7 +60,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
     }
 
     clickDeleteIndexs() {
-const indexs = this.edbModifyIndexs.string.split(',').map(s => Number(s));
+        const indexs = this.edbModifyIndexs.string.split(',').map(s => Number(s));
         for (let i in indexs) {
             const num = indexs[i];
             if (num === NaN || num < 0) {
@@ -75,7 +75,7 @@ const indexs = this.edbModifyIndexs.string.split(',').map(s => Number(s));
         }
 
         this.count -= indexs.length;
-        this.tableView.delete(indexs);
+        this.tableView.reloadData(this.count);
     }
 
     // MARK: UKTableViewDataSrouce

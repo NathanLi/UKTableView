@@ -191,9 +191,7 @@ export default class UKTableView extends cc.Component {
     }
 
     delete(indexs: number[]): void {
-        cc.log('delete indexs', indexs);
         if (!indexs || !indexs.length) {
-            cc.log('empty indexs');
             return;
         }
 
@@ -205,6 +203,7 @@ export default class UKTableView extends cc.Component {
         }
 
         this.count -= indexs.length;
+        this.layout.deleteCellAtIndexs(this.content, indexs);
         this.resetCache();
         this.setupContentSize();
         this.fixPositions();
@@ -245,7 +244,7 @@ export default class UKTableView extends cc.Component {
     private recycleAllCells() {
         if (this.layout) {
             this.layout.getChildCells(this.content).forEach(cell => {
-                this.cycleCell(cell);
+                this.doRecycleCell(cell);
             });
         }
     }
@@ -272,7 +271,7 @@ export default class UKTableView extends cc.Component {
         layout.paddingRight = this.paddingRight;
         layout.spaceX = this.spaceX;
         layout.spaceY = this.spaceY;
-        layout.recyleCell = cell => this.cycleCell(cell);
+        layout.recyleCell = cell => this.doRecycleCell(cell);
         layout.sizeAtIndex = index => this.sizeAtIndex(index);
         layout.cellAtIndex = index => this.cellAtIndex(index);
         return layout;
@@ -310,7 +309,7 @@ export default class UKTableView extends cc.Component {
         return size;
     }
 
-    private cycleCell(cell: UKTableViewCell): void {
+    private doRecycleCell(cell: UKTableViewCell): void {
         cell.node.removeFromParent(false);
 
         const identifier = cell.identifier;
