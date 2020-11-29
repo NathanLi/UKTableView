@@ -12,7 +12,10 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
     @property(cc.EditBox)
     private edbIndex: cc.EditBox = null;
 
-    private count = 40;
+    @property(cc.EditBox)
+    private edbModifyIndexs: cc.EditBox = null;
+
+    private count = 4;
 
     onLoad() {
         this.tableView.dataSource = this;
@@ -30,10 +33,49 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
     clickToIndex() {
         const index = Number(this.edbIndex.string);
         if (index === NaN) {
+            this.edbIndex.string = '';
             return;
         }
 
         this.tableView.scrollToIndex(index, 0.3);
+    }
+
+    clickAddIndexs() {
+        const indexs = this.edbModifyIndexs.string.split(',').map(s => Number(s));
+        for (let i in indexs) {
+            const num = indexs[i];
+            if (num === NaN || num < 0) {
+                this.edbModifyIndexs.string = '';
+                return;
+            }
+
+            if (num > this.count) {
+                cc.error(`${num} 超过了当前的总数`);
+                return;
+            }
+        }
+
+        this.count += indexs.length;
+        this.tableView.insert(indexs);
+    }
+
+    clickDeleteIndexs() {
+const indexs = this.edbModifyIndexs.string.split(',').map(s => Number(s));
+        for (let i in indexs) {
+            const num = indexs[i];
+            if (num === NaN || num < 0) {
+                this.edbModifyIndexs.string = '';
+                return;
+            }
+
+            if (num >= this.count) {
+                cc.error(`${num} 超过了当前的总数`);
+                return;
+            }
+        }
+
+        this.count -= indexs.length;
+        this.tableView.delete(indexs);
     }
 
     // MARK: UKTableViewDataSrouce

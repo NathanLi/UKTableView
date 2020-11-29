@@ -191,7 +191,9 @@ export default class UKTableView extends cc.Component {
     }
 
     delete(indexs: number[]): void {
+        cc.log('delete indexs', indexs);
         if (!indexs || !indexs.length) {
+            cc.log('empty indexs');
             return;
         }
 
