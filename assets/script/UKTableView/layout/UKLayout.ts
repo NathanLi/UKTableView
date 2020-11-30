@@ -43,11 +43,48 @@ export class UKLayout implements IUKLayout {
             .filter(c => c != null);
     }
 
+    insertCellAtIndexs(content: cc.Node, indexs: number[]): void {
+        const cells = this.getChildCells(content)
+            .sort((c1, c2) => c1.__index - c2.__index);
+        const targetIndexs = indexs.sort((i1, i2) => i1 - i2);
+        const [minIndex, maxIndex] = [targetIndexs[0], targetIndexs[indexs.length - 1]];
+        const [minCellIndex, maxCellIndex] = [cells[0].index, cells[cells.length - 1].index];
+
+        if ((minIndex > maxCellIndex) || (maxIndex < minCellIndex)) {
+            // no need insert real
+            return;
+        }
+
+        indexs.forEach(index => {
+            if (index >= minCellIndex) {
+                const cell = this.cellAtIndex(index);
+                const node = cell.node;
+                content.addChild(node);
+
+                cell.__show(index);
+
+                cells.forEach(cell => {
+                    if (cell.index >= index) {
+                        cell.__fixIndex(cell.index + 1);
+                    }
+                });
+            }
+        });
+    }
+
     deleteCellAtIndexs(content: cc.Node, indexs: number[]): void {
-        const cells = this.getChildCells(content);
+        const cells = this.getChildCells(content)
+            .sort((c1, c2) => c1.__index - c2.__index);
+
+        let delCount = 0;
+
         cells.forEach(cell => {
-            if (indexs.indexOf(cell.__index) >= 0) {
+            const cellIndex = cell.__index;
+            if (indexs.indexOf(cellIndex) >= 0) {
+                delCount++;
                 this.recyleCell(cell);
+            } else if (delCount > 0) {
+                cell.__fixIndex(cellIndex - delCount);
             }
         });
     }

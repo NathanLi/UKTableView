@@ -56,6 +56,7 @@ export class UKLayoutVertical extends UKLayout {
                 continue;
             }
 
+            node[this.sideProperName] = side;  // TODO: 应该在 insert cell 时实现
             uk.setYByTop(node, top, side);
 
             if ((++layoutCount) == length) {
@@ -129,6 +130,7 @@ export class UKLayoutVertical extends UKLayout {
                 content.addChild(node);
 
                 cell.__show(index);
+                cc.log(`doFillCell.__show(${index})`);
             }
 
             if (nextTop < visiableBottom) {

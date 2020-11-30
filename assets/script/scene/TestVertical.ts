@@ -75,7 +75,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
         }
 
         this.count -= indexs.length;
-        this.tableView.reloadData(this.count);
+        this.tableView.delete(indexs);
     }
 
     // MARK: UKTableViewDataSrouce

@@ -43,6 +43,13 @@ export interface IUKLayout {
     calContentSize(count: number): number;
 
     /**
+     * 根据索引插入可见的 cells
+     * @param content 
+     * @param indexs 
+     */
+    insertCellAtIndexs(content: cc.Node, indexs: number[]): void;
+
+    /**
      * 根据索引删除可见的 cells
      * @param indexs 
      */

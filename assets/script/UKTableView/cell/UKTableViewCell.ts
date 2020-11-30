@@ -9,6 +9,10 @@ export default class UKTableViewCell extends cc.Component {
     __index: number;
     __sizeChangedCB?: (cell: UKTableViewCell) => void;
 
+    get index() {
+        return this.__index;
+    }
+
     onLoad() {
         this.node.on(SIZE_CHANGED, this.onSizeChanged, this);
     }
@@ -20,6 +24,10 @@ export default class UKTableViewCell extends cc.Component {
     __show(atIndex: number) {
         this.__index = atIndex;
         cc.log(`show(${atIndex})`);
+    }
+
+    __fixIndex(index: number) {
+        this.__index = index;
     }
 
     private onSizeChanged() {

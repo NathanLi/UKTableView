@@ -183,7 +183,10 @@ export default class UKTableView extends cc.Component {
             return;
         }
 
+        // TODO: indexs 的合法性校验
+
         this.count += indexs.length;
+        this.layout.insertCellAtIndexs(this.content, indexs);
         this.resetCache();
         this.setupContentSize();
         this.fixPositions();
@@ -194,6 +197,8 @@ export default class UKTableView extends cc.Component {
         if (!indexs || !indexs.length) {
             return;
         }
+
+        // TODO: 重复校验
 
         for (let i = 0; i < indexs.length; ++i) {
             const index = indexs[i];
@@ -310,6 +315,8 @@ export default class UKTableView extends cc.Component {
     }
 
     private doRecycleCell(cell: UKTableViewCell): void {
+        cc.log(`doRecycleCell(${cell.index})`);
+
         cell.node.removeFromParent(false);
 
         const identifier = cell.identifier;
@@ -322,6 +329,7 @@ export default class UKTableView extends cc.Component {
 
     private cellAtIndex(index: number): UKTableViewCell {
         const cell = this.dataSource.cellAtIndex(index);
+        cc.log(`cellAtIndex(${index})`);
         return cell;
     }
 
