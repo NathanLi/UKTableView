@@ -36,7 +36,7 @@ export class UKLayoutHorizontal extends UKLayout {
         const cells = this.getChildCells(content);
         
         const mapNodes: {[index: number]: cc.Node} = {};
-        cells.forEach(cell => mapNodes[cell.__index] = cell.node);
+        cells.forEach(cell => mapNodes[cell.index] = cell.node);
 
         const length = cells.length;
         let layoutCount = 0;
@@ -111,7 +111,7 @@ export class UKLayoutHorizontal extends UKLayout {
         const [visiableLeft, visiableRight] = uk.getVisiableHorizontal(scroll);
         const content = scroll.content;
 
-        let showedIndexs = showedCells.map(c => c.__index);
+        let showedIndexs = showedCells.map(c => c.index);
         let nextRight = uk.getContentRight(content) - this.paddingRight;
         let [startIndex, sign] = this.getIteratorAugs(eleCount);
         for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
@@ -128,15 +128,10 @@ export class UKLayoutHorizontal extends UKLayout {
             const isOut = (curLeft >= visiableRight) || (curRight <= visiableLeft);
             const visiable = !isOut;
             if (visiable) { 
-                const cell = this.cellAtIndex(index);
+                const cell = this.insertOneCellAt(content, index, side);
                 const node = cell.node;
 
-                uk.setWidth(node, side);
                 uk.setXByRight(node, curRight, side);
-
-                content.addChild(node);
-
-                cell.__show(index);
             }
 
             if (nextRight < visiableLeft) {

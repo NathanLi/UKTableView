@@ -36,7 +36,7 @@ export class UKLayoutVertical extends UKLayout {
         const cells = this.getChildCells(content);
         
         const mapNodes: {[index: number]: cc.Node} = {};
-        cells.forEach(cell => mapNodes[cell.__index] = cell.node);
+        cells.forEach(cell => mapNodes[cell.index] = cell.node);
 
         const length = cells.length;
         let layoutCount = 0;
@@ -54,7 +54,6 @@ export class UKLayoutVertical extends UKLayout {
                 continue;
             }
 
-            this.setSide(node, side); // TODO: 应该在 insert cell 时实现
             uk.setYByTop(node, top, side);
 
             if ((++layoutCount) == length) {
@@ -112,7 +111,7 @@ export class UKLayoutVertical extends UKLayout {
         const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
         const content = scroll.content;
 
-        let showedIndexs = showedCells.map(c => c.__index);
+        let showedIndexs = showedCells.map(c => c.index);
         let nextTop = uk.getContentTop(content) - this.paddingTop;
         let [startIndex, sign] = this.getIteratorAugs(eleCount);
         for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
@@ -127,16 +126,11 @@ export class UKLayoutVertical extends UKLayout {
 
             const isOut = (curBottom >= visiableTop) || (curTop <= visiableBottom);
             const visiable = !isOut;
-            if (visiable) { 
-                const cell = this.cellAtIndex(index);
+            if (visiable) {
+                const cell = this.insertOneCellAt(content, index, side);
                 const node = cell.node;
 
-                uk.setHight(node, side);
                 uk.setYByTop(node, curTop, side);
-                content.addChild(node);
-
-                cell.__show(index);
-                cc.log(`doFillCell.__show(${index})`);
             }
 
             if (nextTop < visiableBottom) {

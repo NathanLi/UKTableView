@@ -6,11 +6,15 @@ export default class UKTableViewCell extends cc.Component {
     @property
     identifier: string = 'default';
 
-    __index: number;
+    private __index: number;
     __sizeChangedCB?: (cell: UKTableViewCell) => void;
 
     get index() {
         return this.__index;
+    }
+
+    set index(index: number) {
+        this.__index = index;
     }
 
     onLoad() {
@@ -27,7 +31,7 @@ export default class UKTableViewCell extends cc.Component {
     }
 
     __fixIndex(index: number) {
-        this.__index = index;
+        this.index = index;
     }
 
     private onSizeChanged() {

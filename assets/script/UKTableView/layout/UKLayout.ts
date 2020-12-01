@@ -44,7 +44,7 @@ export class UKLayout implements IUKLayout {
 
     insertCellAtIndexs(content: cc.Node, indexs: number[]): void {
         const cells = this.getChildCells(content)
-            .sort((c1, c2) => c1.__index - c2.__index);
+            .sort((c1, c2) => c1.index - c2.index);
         const targetIndexs = indexs.sort((i1, i2) => i1 - i2);
         const [minIndex, maxIndex] = [targetIndexs[0], targetIndexs[indexs.length - 1]];
         const [minCellIndex, maxCellIndex] = [cells[0].index, cells[cells.length - 1].index];
@@ -56,11 +56,8 @@ export class UKLayout implements IUKLayout {
 
         indexs.forEach(index => {
             if (index >= minCellIndex) {
-                const cell = this.cellAtIndex(index);
-                const node = cell.node;
-                content.addChild(node);
-
-                cell.__show(index);
+                const side = this.sizeAtIndex(index);
+                this.insertOneCellAt(content, index, side);
 
                 cells.forEach(cell => {
                     if (cell.index >= index) {
@@ -73,12 +70,12 @@ export class UKLayout implements IUKLayout {
 
     deleteCellAtIndexs(content: cc.Node, indexs: number[]): void {
         const cells = this.getChildCells(content)
-            .sort((c1, c2) => c1.__index - c2.__index);
+            .sort((c1, c2) => c1.index - c2.index);
 
         let delCount = 0;
 
         cells.forEach(cell => {
-            const cellIndex = cell.__index;
+            const cellIndex = cell.index;
             if (indexs.indexOf(cellIndex) >= 0) {
                 delCount++;
                 this.recyleCell(cell);
@@ -102,6 +99,17 @@ export class UKLayout implements IUKLayout {
 
     protected getSpace(): number {
         throw '应该由子类实现';
+    }
+
+    protected insertOneCellAt(content: cc.Node, index: number, side: number) {
+        const cell = this.cellAtIndex(index);
+        const node = cell.node;
+
+        this.setSide(node, side);
+        content.addChild(node);
+
+        cell.index = index;
+        return cell;
     }
 
     setSide(node: cc.Node, side: number): void {

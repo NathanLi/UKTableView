@@ -233,7 +233,7 @@ export default class UKTableView extends cc.Component {
 
     visiableCell(index: number): UKTableViewCell {
         const cells = this.visiableCells();
-        return cells.find(c => c.__index == index);
+        return cells.find(c => c.index == index);
     }
 
     private setupLayoutArgs() {
@@ -337,7 +337,7 @@ export default class UKTableView extends cc.Component {
             return;
         }
 
-        const index = cell.__index;
+        const index = cell.index;
         const side = this.layout.getSide(cell.node);
 
         this.cacheSide[index] = side;
