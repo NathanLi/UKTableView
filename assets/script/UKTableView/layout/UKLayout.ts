@@ -1,5 +1,5 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
-import { ESideType, IUKLayout } from "./IUKLayout";
+import { IUKLayout } from "./IUKLayout";
 
 export class UKLayout implements IUKLayout {
     protected _lastLayoutOffset: number = undefined;
@@ -11,7 +11,6 @@ export class UKLayout implements IUKLayout {
     spaceY: number = 0;
     spaceX: number = 0;
 
-    sideProperName = ESideType.height;
     minDiff = 1;
 
     sizeAtIndex?: (index: number) => number;
@@ -102,6 +101,14 @@ export class UKLayout implements IUKLayout {
     }
 
     protected getSpace(): number {
+        throw '应该由子类实现';
+    }
+
+    setSide(node: cc.Node, side: number): void {
+        throw '应该由子类实现';
+    }
+
+    getSide(node: cc.Node): number {
         throw '应该由子类实现';
     }
 

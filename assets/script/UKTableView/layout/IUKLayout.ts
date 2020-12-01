@@ -1,10 +1,5 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
 
-export enum ESideType {
-    height = 'height',
-    width = 'width',
-}
-
 export interface IUKLayout {
     paddingTop: number;
     paddingBottom: number;
@@ -15,9 +10,6 @@ export interface IUKLayout {
     spaceX: number;
 
     minDiff: number;
-
-    /** 获取边长的属性名 */
-    sideProperName: ESideType;
 
     destory(): void;
 
@@ -78,4 +70,9 @@ export interface IUKLayout {
      * @param index 
      */
     getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number): cc.Vec2;
+
+    /** 更新边长 */
+    setSide(node: cc.Node, side: number): void;
+    /** 获取边长 */
+    getSide(node: cc.Node): number;
 }

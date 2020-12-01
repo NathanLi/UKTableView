@@ -1,11 +1,9 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
 import { uk } from "../util/uk";
-import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
 
 export class UKLayoutHorizontal extends UKLayout {
     protected isLeftToRight = true;
-    sideProperName = ESideType.width;
 
     constructor(isLeftToRight: boolean) {
         super();
@@ -70,6 +68,14 @@ export class UKLayoutHorizontal extends UKLayout {
 
     getSpace() {
         return this.spaceX;
+    }
+
+    setSide(node: cc.Node, side: number): void {
+        node.width = side;
+    }
+
+    getSide(node: cc.Node): number {
+        return node.width;
     }
 
     getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {

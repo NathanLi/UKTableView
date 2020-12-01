@@ -1,11 +1,9 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
 import { uk } from "../util/uk";
-import { ESideType } from "./IUKLayout";
 import { UKLayout } from "./UKLayout";
 
 export class UKLayoutVertical extends UKLayout {
     protected isTopToBottom = true;
-    sideProperName = ESideType.height;
     
     constructor(isTopToBottom: boolean) {
         super();
@@ -56,7 +54,7 @@ export class UKLayoutVertical extends UKLayout {
                 continue;
             }
 
-            node[this.sideProperName] = side;  // TODO: 应该在 insert cell 时实现
+            this.setSide(node, side); // TODO: 应该在 insert cell 时实现
             uk.setYByTop(node, top, side);
 
             if ((++layoutCount) == length) {
@@ -71,6 +69,14 @@ export class UKLayoutVertical extends UKLayout {
 
     getSpace() {
         return this.spaceY;
+    }
+
+    setSide(node: cc.Node, side: number): void {
+        node.height = side;
+    }
+
+    getSide(node: cc.Node): number {
+        return node.height;
     }
 
     getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {

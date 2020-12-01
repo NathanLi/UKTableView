@@ -285,8 +285,7 @@ export default class UKTableView extends cc.Component {
     private setupContentSize() {
         const content = this.content;
         const side = this.calContentSide();
-
-        content[this.layout.sideProperName] = side;
+        this.layout.setSide(content, side);
 
         return side;
     }
@@ -339,7 +338,7 @@ export default class UKTableView extends cc.Component {
         }
 
         const index = cell.__index;
-        const side = cell.node[this.layout.sideProperName];
+        const side = this.layout.getSide(cell.node);
 
         this.cacheSide[index] = side;
         this.setupContentSize();
