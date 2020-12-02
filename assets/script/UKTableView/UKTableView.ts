@@ -84,12 +84,13 @@ export default class UKTableView extends cc.Component {
     })
     horizontalDirection: EUKTableViewHorizontalDirection = EUKTableViewHorizontalDirection.LEFT_TO_RIGHT;
 
-    private count: number = 0;
-    private layout: IUKLayout;
+    private _reloaded: boolean = false;
+    private _count: number = 0;
+    private _layout: IUKLayout;
 
-    private cacheSide: {[index: number]: number} = {};
-    private cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
-    private registedCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
+    private _cacheSide: {[index: number]: number} = {};
+    private _cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
+    private _registedCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
 
     delegate?: UKTableViewDelegate;
     dataSource: UKTableViewDataSrouce;
@@ -107,16 +108,16 @@ export default class UKTableView extends cc.Component {
     }
 
     onDestroy() {
-        for (let key in this.cacheCell) {
-            this.cacheCell[key].forEach(v => v.destroy());
+        for (let key in this._cacheCell) {
+            this._cacheCell[key].forEach(v => v.destroy());
         }
 
-        for (let key in this.registedCell) {
-            this.registedCell[key].destroy();
+        for (let key in this._registedCell) {
+            this._registedCell[key].destroy();
         }
 
-        if (this.layout) {
-            this.layout.destory();
+        if (this._layout) {
+            this._layout.destory();
         }
 
         this.dataSource = null;
@@ -138,7 +139,7 @@ export default class UKTableView extends cc.Component {
         if (!identifier) {
             identifier = 'default';
         }
-        this.registedCell[identifier] = source;
+        this._registedCell[identifier] = source;
     }
 
     dequeueReusableCell(identifier?: string): UKTableViewCell {
@@ -146,12 +147,12 @@ export default class UKTableView extends cc.Component {
             identifier = 'default';
         }
 
-        const cacheCells = this.cacheCell[identifier];
+        const cacheCells = this._cacheCell[identifier];
         if (cacheCells && cacheCells.length) {
             return cacheCells.pop();
         }
 
-        const souce = this.registedCell[identifier];
+        const souce = this._registedCell[identifier];
         const node = cc.instantiate(souce) as cc.Node;
 
         let comp = node.getComponent(UKTableViewCell);
@@ -165,7 +166,7 @@ export default class UKTableView extends cc.Component {
     }
 
     reloadData(count: number): void {
-        this.count = count;
+        this._count = count;
 
         if (!this.dataSource) {
             throw 'you should set dataSource!';
@@ -175,6 +176,17 @@ export default class UKTableView extends cc.Component {
         this.resetCache();
         this.setupLayoutArgs();
         this.setupContentSize();
+
+        if (!this._reloaded) {
+            this._reloaded = true;
+            if ((this.type == EUKTableViewType.VERTICAL) && (this.verticalDirection == EUKTableViewVerticalDirection.BOTTOM_TO_TOP)) {
+                this.scrollView.scrollToBottom();
+            } else if (this.type == EUKTableViewType.HORIZONTAL && (this.horizontalDirection == EUKTableViewHorizontalDirection.RIGHT_TO_LEFT)) {
+                this.scrollView.scrollToRight();
+            }
+        }
+        
+
         this.doLayout();
     }
     
@@ -185,8 +197,8 @@ export default class UKTableView extends cc.Component {
 
         // TODO: indexs 的合法性校验
 
-        this.count += indexs.length;
-        this.layout.insertCellAtIndexs(this.content, indexs);
+        this._count += indexs.length;
+        this._layout.insertCellAtIndexs(this.content, indexs);
         this.resetCache();
         this.setupContentSize();
         this.fixPositions();
@@ -202,13 +214,13 @@ export default class UKTableView extends cc.Component {
 
         for (let i = 0; i < indexs.length; ++i) {
             const index = indexs[i];
-            if (index < 0 || index >= this.count) {
+            if (index < 0 || index >= this._count) {
                 throw new Error(`${index} not exist!`);
             }
         }
 
-        this.count -= indexs.length;
-        this.layout.deleteCellAtIndexs(this.content, indexs);
+        this._count -= indexs.length;
+        this._layout.deleteCellAtIndexs(this.content, indexs);
         this.resetCache();
         this.setupContentSize();
         this.fixPositions();
@@ -222,13 +234,13 @@ export default class UKTableView extends cc.Component {
      * @param attenuated 滚动加速度是否衰减
      */
     scrollToIndex(index: number, timeInSecond: number = 0, attenuated = true): void {
-        const toIndex = Math.min(Math.max(index, 0), this.count - 1);
-        const pos = this.layout.getOffsetOfIndex(this.scrollView, toIndex, this.count);
+        const toIndex = Math.min(Math.max(index, 0), this._count - 1);
+        const pos = this._layout.getOffsetOfIndex(this.scrollView, toIndex, this._count);
         this.scrollView.scrollToOffset(pos, timeInSecond, attenuated);
     }
 
     visiableCells(): UKTableViewCell[] {
-        return this.layout.getChildCells(this.content);
+        return this._layout.getChildCells(this.content);
     }
 
     visiableCell(index: number): UKTableViewCell {
@@ -242,20 +254,20 @@ export default class UKTableView extends cc.Component {
 
         cclayout && (cclayout.enabled = false);
 
-        this.layout && (this.layout.destory());
-        this.layout = this.createLayout();        
+        this._layout && (this._layout.destory());
+        this._layout = this.createLayout();        
     }
 
     private recycleAllCells() {
-        if (this.layout) {
-            this.layout.getChildCells(this.content).forEach(cell => {
+        if (this._layout) {
+            this._layout.getChildCells(this.content).forEach(cell => {
                 this.doRecycleCell(cell);
             });
         }
     }
 
     private resetCache() {
-        this.cacheSide = {
+        this._cacheSide = {
             0: undefined,
             1: undefined,
             2: undefined
@@ -285,21 +297,21 @@ export default class UKTableView extends cc.Component {
     private setupContentSize() {
         const content = this.content;
         const side = this.calContentSide();
-        this.layout.setSide(content, side);
+        this._layout.setSide(content, side);
 
         return side;
     }
 
     private doLayout() {
-        this.layout && this.layout.doLayout(this.scrollView, this.count);
+        this._layout && this._layout.doLayout(this.scrollView, this._count);
     }
 
     private calContentSide() {
-        return this.layout.calContentSize(this.count);
+        return this._layout.calContentSize(this._count);
     }
 
     private sizeAtIndex(index: number): number {
-        let size = this.cacheSide[index];
+        let size = this._cacheSide[index];
         if (!size) {
             size = this.itemEstimateSize;
 
@@ -307,7 +319,7 @@ export default class UKTableView extends cc.Component {
                 size = this.delegate.estimateSizeAtIndex(index);
             }
 
-            this.cacheSide[index] = size;
+            this._cacheSide[index] = size;
         }
 
         return size;
@@ -319,10 +331,10 @@ export default class UKTableView extends cc.Component {
         cell.node.removeFromParent(false);
 
         const identifier = cell.identifier;
-        if (this.cacheCell[identifier]) {
-            this.cacheCell[identifier].push(cell);
+        if (this._cacheCell[identifier]) {
+            this._cacheCell[identifier].push(cell);
         } else {
-            this.cacheCell[identifier] = [cell];
+            this._cacheCell[identifier] = [cell];
         }
     }
 
@@ -338,15 +350,15 @@ export default class UKTableView extends cc.Component {
         }
 
         const index = cell.index;
-        const side = this.layout.getSide(cell.node);
+        const side = this._layout.getSide(cell.node);
 
-        this.cacheSide[index] = side;
+        this._cacheSide[index] = side;
         this.setupContentSize();
         this.fixPositions();
     }
 
     private fixPositions() {
-        this.layout.fixPositions(this.scrollView, this.count);
+        this._layout.fixPositions(this.scrollView, this._count);
     }
 
     lateUpdate() {

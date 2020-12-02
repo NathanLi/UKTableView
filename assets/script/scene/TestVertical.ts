@@ -15,7 +15,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
     @property(cc.EditBox)
     private edbModifyIndexs: cc.EditBox = null;
 
-    private count = 4;
+    private count = 40;
 
     onLoad() {
         this.tableView.dataSource = this;

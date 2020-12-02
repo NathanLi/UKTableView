@@ -1898,7 +1898,7 @@
     "spaceY": 20,
     "spaceX": 0,
     "itemEstimateSize": 100,
-    "verticalDirection": 0,
+    "verticalDirection": 1,
     "horizontalDirection": 0
   },
   {
