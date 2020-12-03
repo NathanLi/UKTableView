@@ -11,7 +11,7 @@ export default class Test extends cc.Component {
     }
 
     clickTestHorizontal() {
-        // TODO:
+        cc.director.loadScene('TestHorizontal');
     }
 
     clickTestChat() {
