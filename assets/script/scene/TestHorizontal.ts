@@ -19,7 +19,9 @@ export default class TestHorizontal extends cc.Component implements UKTableViewD
 
     onLoad() {
         this.tableView.dataSource = this;
-        this.tableView.reloadData(this.count);
+        this.scheduleOnce(() => {
+            this.tableView.reloadData(this.count);
+        });
     }
 
     clickBack() {
