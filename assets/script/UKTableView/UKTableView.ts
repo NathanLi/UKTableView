@@ -326,8 +326,6 @@ export default class UKTableView extends cc.Component {
     }
 
     private doRecycleCell(cell: UKTableViewCell): void {
-        cc.log(`doRecycleCell(${cell.index})`);
-
         cell.node.removeFromParent(false);
 
         const identifier = cell.identifier;
@@ -340,7 +338,6 @@ export default class UKTableView extends cc.Component {
 
     private cellAtIndex(index: number): UKTableViewCell {
         const cell = this.dataSource.cellAtIndex(index);
-        cc.log(`cellAtIndex(${index})`);
         return cell;
     }
 
