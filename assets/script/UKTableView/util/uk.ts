@@ -91,7 +91,7 @@ export class uk {
         const scrollWidth = scroll.node.width;
 
         const offset = scroll.getScrollOffset();
-        const visiableLeft = Math.max(left + offset.x, left);
+        const visiableLeft = Math.max(left - offset.x, left);
         const visiableRight = visiableLeft + scrollWidth;
 
         return [visiableLeft, visiableRight];
