@@ -15,6 +15,6 @@ export default class Test extends cc.Component {
     }
 
     clickTestChat() {
-        // TODO:
+        cc.director.loadScene('Chat');
     }
 }

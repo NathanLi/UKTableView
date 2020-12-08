@@ -22,6 +22,8 @@ export enum EUKTableViewHorizontalDirection {
     RIGHT_TO_LEFT = 1,
 }
 
+// TODO: 1、_cacheSide 应该有大小的限制
+// TODO: 2、insert、delete 要加上
 @ccclass
 @executionOrder(-1)
 export default class UKTableView extends cc.Component {
