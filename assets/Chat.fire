@@ -1672,6 +1672,9 @@
     },
     "edbText": {
       "__id__": 39
+    },
+    "preChatText": {
+      "__uuid__": "6e7e5177-5008-444a-bacb-e17929fcb9fe"
     }
   }
 ]
