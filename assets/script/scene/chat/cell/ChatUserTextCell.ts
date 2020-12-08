@@ -1,3 +1,4 @@
+import { ChatModel } from "../model/ChatModel";
 import ChatUserCell from "./ChatUserCell";
 
 const {ccclass, property, menu} = cc._decorator;
@@ -12,5 +13,10 @@ export default class ChatUserTextCell extends ChatUserCell {
 
     get lblText() {
         return this.isLeft ? this.lblTextLeft : this.lblTextRight;
+    }
+
+    render(model: ChatModel) {
+        this.isLeft = model.userId > 0;
+        this.lblText.string = model.text;
     }
 }
