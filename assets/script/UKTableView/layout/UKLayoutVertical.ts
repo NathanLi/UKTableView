@@ -44,17 +44,18 @@ export class UKLayoutVertical extends UKLayout {
         let [startIndex, sign] = this.getIteratorAugs(count);
 
         for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
-            const top = nextTop;
+            const curTop = nextTop;
             const side = this.sizeAtIndex(index);
+            const curBottom = curTop - side;
             const node = mapNodes[index];
 
-            nextTop = top - side - this.spaceY;
+            nextTop = curBottom - this.spaceY;
 
             if (!node) {
                 continue;
             }
 
-            uk.setYByTop(node, top, side);
+            uk.setYByTop(node, curTop, side);
 
             if ((++layoutCount) == length) {
                 break;
