@@ -115,7 +115,10 @@ export default class UKTableView extends cc.Component {
         }
 
         for (let key in this._registedCell) {
-            this._registedCell[key].destroy();
+            const value = this._registedCell[key];
+            if (isNode(value)) {
+                value.destroy();
+            }
         }
 
         if (this._layout) {
@@ -363,4 +366,8 @@ export default class UKTableView extends cc.Component {
     lateUpdate() {
         this.doLayout();
     }
+}
+
+function isNode(v: cc.Node | cc.Prefab): boolean {
+    return (<any>v).width !== undefined;
 }
