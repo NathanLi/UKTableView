@@ -108,7 +108,7 @@ export class UKLayout implements IUKLayout {
         this.setSide(node, side);
         content.addChild(node);
 
-        cell.index = index;
+        cell.__fixIndex(index);
         return cell;
     }
 

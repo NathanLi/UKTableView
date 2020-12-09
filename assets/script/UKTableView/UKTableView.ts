@@ -1,4 +1,5 @@
-import UKTableViewCell from "./cell/UKTableViewCell";
+import UKTableViewCell, { ICellSizeChangedInfo } from "./cell/UKTableViewCell";
+import { EUKTableViewType, EUKVerticalDirection, EUKHorizontalDirection } from "./EUKTableViewType";
 import { IUKLayout } from "./layout/IUKLayout";
 import { UKLayoutHorizontal } from "./layout/UKLayoutHorizontal";
 import { UKLayoutVertical } from "./layout/UKLayoutVertical";
@@ -6,21 +7,6 @@ import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
 const {ccclass, property, executionOrder} = cc._decorator;
-
-export enum EUKTableViewType {
-    VERTICAL = 0,
-    HORIZONTAL = 1
-}
-
-export enum EUKTableViewVerticalDirection {
-    TOP_TO_BOTTOM = 0,
-    BOTTOM_TO_TOP = 1,
-}
-
-export enum EUKTableViewHorizontalDirection {
-    LEFT_TO_RIGHT = 0,
-    RIGHT_TO_LEFT = 1,
-}
 
 // TODO: 1、_cacheSide 应该有大小的限制
 // TODO: 2、insert、delete 要加上
@@ -75,20 +61,23 @@ export default class UKTableView extends cc.Component {
     @property({
         visible:function() {return this.type == EUKTableViewType.VERTICAL}, 
         tooltip: CC_DEV && '垂直排列子节点的方向，包括：\nTOP_TO_BOTTOM: 从上往下排\nBOTTOM_TO_TOP: 从下往上排',
-        type: cc.Enum(EUKTableViewVerticalDirection)
+        type: cc.Enum(EUKVerticalDirection)
     })
-    verticalDirection: EUKTableViewVerticalDirection = EUKTableViewVerticalDirection.TOP_TO_BOTTOM;
+    verticalDirection: EUKVerticalDirection = EUKVerticalDirection.TOP_TO_BOTTOM;
 
     @property({
         visible:function() {return this.type == EUKTableViewType.HORIZONTAL}, 
         tooltip: CC_DEV && '水平排列子节点的方向，包括：\nLEFT_TO_RIGHT: 从上往下排\nRIGHT_TO_LEFT: 从下往上排',
-        type: cc.Enum(EUKTableViewHorizontalDirection)
+        type: cc.Enum(EUKHorizontalDirection)
     })
-    horizontalDirection: EUKTableViewHorizontalDirection = EUKTableViewHorizontalDirection.LEFT_TO_RIGHT;
+    horizontalDirection: EUKHorizontalDirection = EUKHorizontalDirection.LEFT_TO_RIGHT;
 
     private _reloaded: boolean = false;
     private _count: number = 0;
     private _layout: IUKLayout;
+
+    /** 当前正在生成的 cell 的 index */
+    private _curGenIndex: number = 0;
 
     private _cacheSide: {[index: number]: number} = {};
     private _cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
@@ -152,22 +141,26 @@ export default class UKTableView extends cc.Component {
             identifier = 'default';
         }
 
-        const cacheCells = this._cacheCell[identifier];
-        if (cacheCells && cacheCells.length) {
-            return cacheCells.pop();
+        const cacheCells = this._cacheCell[identifier] || [];
+        const side = this.sizeAtIndex(this._curGenIndex);
+
+        let cell = cacheCells.pop();
+        if (!cell) {
+            const souce = this._registedCell[identifier];
+            const node = cc.instantiate(souce) as cc.Node;
+            cell = node.getComponent(UKTableViewCell);
+            if (!cell) {
+                cell = node.addComponent(UKTableViewCell);
+                cell.identifier = identifier;
+            }
         }
 
-        const souce = this._registedCell[identifier];
-        const node = cc.instantiate(souce) as cc.Node;
+        this._layout.setSide(cell.node, side);
 
-        let comp = node.getComponent(UKTableViewCell);
-        if (!comp) {
-            comp = node.addComponent(UKTableViewCell);
-            comp.identifier = identifier;
-            comp.__sizeChangedCB = cell => this.onCellSizeChanged(cell);
-        }
+        cell.__toUse();
+        cell.node.on(UKTableViewCell.EventSizeChanged, this.onCellSizeChanged, this);
 
-        return comp;
+        return cell;
     }
 
     reloadData(count: number): void {
@@ -184,9 +177,9 @@ export default class UKTableView extends cc.Component {
 
         if (!this._reloaded) {
             this._reloaded = true;
-            if ((this.type == EUKTableViewType.VERTICAL) && (this.verticalDirection == EUKTableViewVerticalDirection.BOTTOM_TO_TOP)) {
+            if ((this.type == EUKTableViewType.VERTICAL) && (this.verticalDirection == EUKVerticalDirection.BOTTOM_TO_TOP)) {
                 this.scrollView.scrollToBottom();
-            } else if (this.type == EUKTableViewType.HORIZONTAL && (this.horizontalDirection == EUKTableViewHorizontalDirection.RIGHT_TO_LEFT)) {
+            } else if (this.type == EUKTableViewType.HORIZONTAL && (this.horizontalDirection == EUKHorizontalDirection.RIGHT_TO_LEFT)) {
                 this.scrollView.scrollToRight();
             }
         }
@@ -281,8 +274,8 @@ export default class UKTableView extends cc.Component {
 
     private createLayout() {
         const layoutMaps = {
-            [EUKTableViewType.VERTICAL]: () => new UKLayoutVertical(this.verticalDirection == EUKTableViewVerticalDirection.TOP_TO_BOTTOM),
-            [EUKTableViewType.HORIZONTAL]: () => new UKLayoutHorizontal(this.horizontalDirection == EUKTableViewHorizontalDirection.LEFT_TO_RIGHT),
+            [EUKTableViewType.VERTICAL]: () => new UKLayoutVertical(this.verticalDirection == EUKVerticalDirection.TOP_TO_BOTTOM),
+            [EUKTableViewType.HORIZONTAL]: () => new UKLayoutHorizontal(this.horizontalDirection == EUKHorizontalDirection.LEFT_TO_RIGHT),
         };
 
         const layout: IUKLayout = layoutMaps[this.type]();
@@ -331,6 +324,7 @@ export default class UKTableView extends cc.Component {
     }
 
     private doRecycleCell(cell: UKTableViewCell): void {
+        cell.__prepareForReuse();
         cell.node.removeFromParent(false);
 
         const identifier = cell.identifier;
@@ -342,11 +336,15 @@ export default class UKTableView extends cc.Component {
     }
 
     private cellAtIndex(index: number): UKTableViewCell {
+        this._curGenIndex = index;
+
         const cell = this.dataSource.cellAtIndex(index);
         return cell;
     }
 
-    private onCellSizeChanged(cell: UKTableViewCell) {
+    private onCellSizeChanged(event: cc.Event.EventCustom) {
+        const info: ICellSizeChangedInfo = event.getUserData();
+        const cell = info.cell;
         if (!cell.node.parent) {
             return;
         }

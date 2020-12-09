@@ -1,13 +1,18 @@
 const {ccclass, property, menu} = cc._decorator;
 
-const SIZE_CHANGED = 'size-changed';
+export interface ICellSizeChangedInfo {
+    cell: UKTableViewCell,
+    size: cc.Size,
+}
+
 @ccclass
 export default class UKTableViewCell extends cc.Component {
     @property
     identifier: string = 'default';
 
     private __index: number;
-    __sizeChangedCB?: (cell: UKTableViewCell) => void;
+
+    __isUsing: boolean = false;
 
     get index() {
         return this.__index;
@@ -17,28 +22,49 @@ export default class UKTableViewCell extends cc.Component {
         this.__index = index;
     }
 
+    onPrepareForReuse?: () => void;
+    onToUse?: () => void;
+
+    static EventSizeChanged = 'UKTableViewCell-SizeChanged';
+
     onLoad() {
-        this.node.on(SIZE_CHANGED, this.onSizeChanged, this);
+        this.node.on('size-changed', this.onSizeChanged, this);
     }
 
     onDestroy() {
-        this.__sizeChangedCB = undefined;
-    }
-
-    __show(atIndex: number) {
-        this.__index = atIndex;
-        cc.log(`show(${atIndex})`);
+        this.onPrepareForReuse = null;
+        this.onToUse = null;
     }
 
     __fixIndex(index: number) {
         this.index = index;
     }
 
+    /**
+     * 将被使用
+     */
+    __toUse(): void {
+        this.__isUsing = true;
+        this.onToUse && this.onToUse();
+    }
+
+    /**
+     * 回收后准备重用
+     */
+    __prepareForReuse(): void {
+        this.__isUsing = false;
+        this.onPrepareForReuse && this.onPrepareForReuse();
+    }
+
     private onSizeChanged() {
-        if (!this.node.parent) {
+        if (!this.__isUsing) {
             return;
         }
 
-        this.__sizeChangedCB && this.__sizeChangedCB(this);
+        const size = this.node.getContentSize(true);
+        this.node.emit(UKTableViewCell.EventSizeChanged, {
+            cell: this,
+            size: size,
+        });
     }
 }
