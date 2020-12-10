@@ -199,7 +199,7 @@ export default class UKTableView extends cc.Component {
         this._layout.insertCellAtIndexs(this.content, indexs);
         this.resetCache();
         this.setupContentSize();
-        this.fixPositions();
+        this.fixCellPositions();
         this.doLayout();
     }
 
@@ -221,7 +221,7 @@ export default class UKTableView extends cc.Component {
         this._layout.deleteCellAtIndexs(this.content, indexs);
         this.resetCache();
         this.setupContentSize();
-        this.fixPositions();
+        this.fixCellPositions();
         this.doLayout();
     }
 
@@ -296,6 +296,7 @@ export default class UKTableView extends cc.Component {
         const content = this.content;
         const side = this.calContentSide();
         this._layout.setSide(content, side);
+        // TODO: 需要再次设置偏移
 
         return side;
     }
@@ -354,10 +355,10 @@ export default class UKTableView extends cc.Component {
 
         this._cacheSide[index] = side;
         this.setupContentSize();
-        this.fixPositions();
+        this.fixCellPositions();
     }
 
-    private fixPositions() {
+    private fixCellPositions() {
         this._layout.fixPositions(this.scrollView, this._count);
     }
 
