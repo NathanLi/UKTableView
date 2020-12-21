@@ -177,10 +177,19 @@ export default class UKTableView extends cc.Component {
 
         if (!this._reloaded) {
             this._reloaded = true;
-            if ((this.type == EUKTableViewType.VERTICAL) && (this.verticalDirection == EUKVerticalDirection.BOTTOM_TO_TOP)) {
-                this.scrollView.scrollToBottom();
-            } else if (this.type == EUKTableViewType.HORIZONTAL && (this.horizontalDirection == EUKHorizontalDirection.RIGHT_TO_LEFT)) {
-                this.scrollView.scrollToRight();
+            // init the offset
+            if (this.type == EUKTableViewType.VERTICAL) {
+                if (this.verticalDirection == EUKVerticalDirection.BOTTOM_TO_TOP) {
+                    this.scrollView.scrollToBottom();
+                } else {
+                    this.scrollView.scrollToTop();
+                }
+            } else {
+                if (this.horizontalDirection == EUKHorizontalDirection.RIGHT_TO_LEFT) {
+                    this.scrollView.scrollToRight();
+                } else {
+                    this.scrollView.scrollToLeft();
+                }
             }
         }
         
@@ -293,12 +302,7 @@ export default class UKTableView extends cc.Component {
     }
 
     private setupContentSize() {
-        const content = this.content;
-        const side = this.calContentSide();
-        this._layout.setSide(content, side);
-        // TODO: 需要再次设置偏移
-
-        return side;
+        this._layout.setupContentSize(this.scrollView, this._count);
     }
 
     private doLayout() {

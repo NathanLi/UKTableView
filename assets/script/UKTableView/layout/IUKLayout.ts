@@ -28,6 +28,13 @@ export interface IUKLayout {
      * 回收 cell
      */
     recyleCell?: (cell: UKTableViewCell) => void;
+
+    /**
+     * 设置内容的边长
+     * @param scroll 
+     * @param count 
+     */
+    setupContentSize(scroll: cc.ScrollView, count: number): void;
     
     /**
      * 计算内容的总边长

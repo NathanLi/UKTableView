@@ -23,6 +23,10 @@ export class UKLayout implements IUKLayout {
         this.recyleCell = undefined;
     }
 
+    setupContentSize(scroll: cc.ScrollView, count: number): void {
+        throw '应该由子类实现';
+    }
+
     calContentSize(count: number): number {
         if (count <= 0) {
             return 0;

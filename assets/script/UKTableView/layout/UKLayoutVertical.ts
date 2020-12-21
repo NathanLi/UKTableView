@@ -63,6 +63,14 @@ export class UKLayoutVertical extends UKLayout {
         }
     }
 
+    setupContentSize(scroll: cc.ScrollView, count: number): void {
+        const originOffset = scroll.getScrollOffset();
+        const side = this.calContentSize(count);
+        this.setSide(scroll.content, side);
+        // scroll.scrollToOffset(originOffset);
+        // scroll.scrollToPercentVertical(0);
+    }
+
     getPaddingCount() {
         return this.paddingTop + this.paddingBottom;
     }
