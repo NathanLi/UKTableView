@@ -18,12 +18,32 @@ export const testChatModels: ChatModel[] = [
     },
     {
         userId: 0,
-        time: Date.now() - 60 * 60 * 1000 + 30,
+        time: Date.now() - 60 * 60 * 1000 + 40,
         text: 'I am fine',
     },
     {
         userId: 0,
-        time: Date.now() - 60 * 60 * 1000 + 30,
+        time: Date.now() - 60 * 60 * 1000 + 50,
+        text: `床前明月光，疑是地上霜。\n举头望明月，低头思故乡。`,
+    },
+    {
+        userId: 1,
+        time: Date.now() - 60 * 60 * 1000 + 60,
+        text: `床前明月光，疑是地上霜。\n举头望明月，低头思故乡。`,
+    },
+    {
+        userId: 0,
+        time: Date.now() - 60 * 60 * 1000 + 70,
+        text: `床前明月光，疑是地上霜。\n举头望明月，低头思故乡。`,
+    },
+    {
+        userId: 1,
+        time: Date.now() - 60 * 60 * 1000 + 80,
+        text: `床前明月光，疑是地上霜。\n举头望明月，低头思故乡。`,
+    },
+    {
+        userId: 0,
+        time: Date.now() - 60 * 60 * 1000 + 90,
         text: `床前明月光，疑是地上霜。\n举头望明月，低头思故乡。`,
     },
 ];

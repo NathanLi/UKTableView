@@ -65,10 +65,33 @@ export class UKLayoutVertical extends UKLayout {
 
     setupContentSize(scroll: cc.ScrollView, count: number): void {
         const originOffset = scroll.getScrollOffset();
+        const originSide = scroll.content.height;
         const side = this.calContentSize(count);
         this.setSide(scroll.content, side);
-        // scroll.scrollToOffset(originOffset);
-        // scroll.scrollToPercentVertical(0);
+
+        if (this.isTopToBottom) {
+            // top to bottom 直接是原 offset
+            scroll.scrollToOffset(originOffset);
+            return;
+        }
+
+        if (originOffset.y < 0) {
+            // 原来只显示了最底部的几个
+            scroll.scrollToPercentVertical(0);
+            return;
+        }
+
+        const scrollHeight = scroll.node.height;
+        if (side < scrollHeight) {
+            // 现在只需要显示最底部
+            scroll.scrollToPercentVertical(0);
+            return;
+        }
+
+        // 尝试显示原来的 offset
+        const diff = side - Math.max(scrollHeight, originSide);
+        const offset = cc.v2(originOffset.x, originOffset.y + diff);
+        scroll.scrollToOffset(offset);
     }
 
     getPaddingCount() {

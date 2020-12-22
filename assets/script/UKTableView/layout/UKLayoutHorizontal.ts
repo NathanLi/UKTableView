@@ -62,6 +62,34 @@ export class UKLayoutHorizontal extends UKLayout {
         }
     }
 
+    setupContentSize(scroll: cc.ScrollView, count: number): void {
+        const originOffset = scroll.getScrollOffset();
+        const originSide = scroll.content.width;
+        const side = this.calContentSize(count);
+        this.setSide(scroll.content, side);
+
+        if (this.isLeftToRight) {
+            // left to right 直接是原 offset
+            scroll.scrollToOffset(originOffset);
+            return;
+        }
+
+        if (originOffset.x < 0) {
+            scroll.scrollToPercentHorizontal(0);
+            return;
+        }
+
+        const scrollWidth = scroll.node.width;
+        if (side < scrollWidth) {
+            scroll.scrollToPercentHorizontal(0);
+            return;
+        }
+
+        const diff = side - Math.max(scrollWidth, originSide);
+        const offset = cc.v2(originOffset.x + diff, originOffset.y);
+        scroll.scrollToOffset(offset);
+    }
+
     getPaddingCount() {
         return this.paddingLeft + this.paddingRight;
     }
