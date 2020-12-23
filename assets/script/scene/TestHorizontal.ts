@@ -20,7 +20,7 @@ export default class TestHorizontal extends cc.Component implements UKTableViewD
     onLoad() {
         this.tableView.dataSource = this;
         this.scheduleOnce(() => {
-            this.tableView.reloadData(this.count);
+            this.tableView.reloadData();
         });
     }
 
@@ -29,7 +29,7 @@ export default class TestHorizontal extends cc.Component implements UKTableViewD
     }
 
     clickReload() {
-        this.tableView.reloadData(this.count);
+        this.tableView.reloadData();
     }
 
     clickToIndex() {
@@ -86,5 +86,9 @@ export default class TestHorizontal extends cc.Component implements UKTableViewD
         cell.getComponentInChildren(cc.Label).string = `cell: ${index}`;
         cell.getComponentInChildren(cc.Sprite).node.color = (index % 2) == 0 ? cc.Color.WHITE : cc.Color.GRAY;
         return cell;
+    }
+
+    numberOfCell() {
+        return this.count;
     }
 }

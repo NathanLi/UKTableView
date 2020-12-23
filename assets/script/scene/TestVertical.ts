@@ -19,7 +19,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
 
     onLoad() {
         this.tableView.dataSource = this;
-        this.tableView.reloadData(this.count);
+        this.tableView.reloadData();
     }
 
     clickBack() {
@@ -27,7 +27,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
     }
 
     clickReload() {
-        this.tableView.reloadData(this.count);
+        this.tableView.reloadData();
     }
 
     clickToIndex() {
@@ -84,5 +84,9 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
         cell.getComponentInChildren(cc.Label).string = `cell: ${index}`;
         cell.getComponentInChildren(cc.Sprite).node.color = (index % 2) == 0 ? cc.Color.WHITE : cc.Color.GRAY;
         return cell;
+    }
+
+    numberOfCell() {
+        return this.count;
     }
 }

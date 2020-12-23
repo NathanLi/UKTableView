@@ -30,7 +30,7 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
         this.tableView.dataSource = this;
 
         this.scheduleOnce(() => {
-            this.tableView.reloadData(this.models.length);
+            this.tableView.reloadData();
         });
     }
 
@@ -48,6 +48,10 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
         const chatCell = cell.getComponent(ChatUserTextCell);
         chatCell.render(this.models[index]);
         return cell;
+    }
+
+    numberOfCell() {
+        return this.models.length;
     }
 
     // MARK: UKTableViewDelegate
