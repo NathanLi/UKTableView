@@ -38,8 +38,8 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
         cc.director.loadScene('Test');
     }
 
-    onTextEditEnd() {
-
+    clickSend() {
+        
     }
 
     // MARK: UKTableViewDataSrouce
