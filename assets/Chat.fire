@@ -1092,7 +1092,7 @@
     "spaceY": 2,
     "spaceX": 0,
     "itemEstimateSize": 0,
-    "verticalDirection": 1,
+    "verticalDirection": 0,
     "horizontalDirection": 0
   },
   {
@@ -1792,7 +1792,7 @@
       "__id__": 2
     },
     "component": "Chat",
-    "handler": "",
+    "handler": "clickSend",
     "customEventData": ""
   },
   {
@@ -1853,6 +1853,9 @@
     },
     "preChatText": {
       "__uuid__": "6e7e5177-5008-444a-bacb-e17929fcb9fe"
+    },
+    "preChatTime": {
+      "__uuid__": "71364137-b397-484c-be7b-0adccac2c4e5"
     }
   }
 ]

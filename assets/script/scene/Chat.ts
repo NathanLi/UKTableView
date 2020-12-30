@@ -1,8 +1,9 @@
 import UKTableView from "../UKTableView/UKTableView";
 import { UKTableViewDataSrouce } from "../UKTableView/UKTableViewDataSource";
 import { UKTableViewDelegate } from "../UKTableView/UKTableViewDelegate";
+import ChatTimeCell from "./chat/cell/ChatTimeCell";
 import ChatUserTextCell from "./chat/cell/ChatUserTextCell";
-import { ChatTextModel } from "./chat/model/ChatModel";
+import { ChatModelManager, ChatTextModel, IChatModel } from "./chat/model/ChatModel";
 import { TestChatModels } from "./chat/model/TestModels";
 
 const {ccclass, property, menu} = cc._decorator;
@@ -23,10 +24,14 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
     @property(cc.Prefab)
     private preChatText: cc.Prefab = null;
 
-    private models: ChatTextModel[] = TestChatModels.concat();
+    @property(cc.Prefab)
+    private preChatTime: cc.Prefab = null;
+
+    private models: IChatModel[] = TestChatModels.concat();
 
     onLoad() {
         this.tableView.registe(this.preChatText, EChatCellType.text);
+        this.tableView.registe(this.preChatTime, EChatCellType.time);
         this.tableView.delegate = this;
         this.tableView.dataSource = this;
 
@@ -40,14 +45,39 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
     }
 
     clickSend() {
-        
+        const text = this.edbText.string;
+        if (!text) {
+            return;
+        }
+
+        const model: ChatTextModel = {
+            userId: 0,
+            time: Date.now(),
+            text: text
+        };
+        ChatModelManager.add(this.models, model);
+        this.tableView.reloadData();
+        this.edbText.string = '';
+
+        this.scheduleOnce(() => {
+            this.tableView.scrollToIndex(this.models.length - 1, 0.3);
+        });
     }
 
     // MARK: UKTableViewDataSrouce
     cellAtIndex(index: number) {
-        const cell = this.tableView.dequeueReusableCell(EChatCellType.text);
-        const chatCell = cell.getComponent(ChatUserTextCell);
-        chatCell.render(this.models[index]);
+        const model = this.models[index];
+
+        if (model['text']) {
+            const cell = this.tableView.dequeueReusableCell(EChatCellType.text);
+            const chatCell = cell.getComponent(ChatUserTextCell);
+            chatCell.render(<ChatTextModel>model);
+            return cell;
+        }
+
+        const cell = this.tableView.dequeueReusableCell(EChatCellType.time);
+        const timeCell = cell.getComponent(ChatTimeCell);
+        timeCell.render(model);
         return cell;
     }
 
