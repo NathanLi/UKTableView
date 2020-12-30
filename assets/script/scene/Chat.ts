@@ -2,13 +2,14 @@ import UKTableView from "../UKTableView/UKTableView";
 import { UKTableViewDataSrouce } from "../UKTableView/UKTableViewDataSource";
 import { UKTableViewDelegate } from "../UKTableView/UKTableViewDelegate";
 import ChatUserTextCell from "./chat/cell/ChatUserTextCell";
-import { ChatModel } from "./chat/model/ChatModel";
-import { testChatModels } from "./chat/model/TestModels";
+import { ChatTextModel } from "./chat/model/ChatModel";
+import { TestChatModels } from "./chat/model/TestModels";
 
 const {ccclass, property, menu} = cc._decorator;
 
 enum EChatCellType {
     text = 'text',
+    time = 'time'
 }
 
 @ccclass
@@ -22,7 +23,7 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
     @property(cc.Prefab)
     private preChatText: cc.Prefab = null;
 
-    private models: ChatModel[] = testChatModels.concat();
+    private models: ChatTextModel[] = TestChatModels.concat();
 
     onLoad() {
         this.tableView.registe(this.preChatText, EChatCellType.text);
