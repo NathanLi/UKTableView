@@ -20,8 +20,10 @@ export class ChatModelManager {
         }
 
         if (this.shouldInTimeModel(models[models.length - 1], model)) {
-            models.push({time: Date.now()}, model);
+            models.push({time: Date.now()});
         }
+        
+        models.push(model);
     }
 
     static shouldInTimeModel(m1: IChatModel, m2: IChatModel): boolean {
