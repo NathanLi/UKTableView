@@ -1089,7 +1089,7 @@
     "paddingBottom": 0,
     "paddingLeft": 0,
     "paddingRight": 0,
-    "spaceY": 2,
+    "spaceY": 0,
     "spaceX": 0,
     "itemEstimateSize": 0,
     "verticalDirection": 0,

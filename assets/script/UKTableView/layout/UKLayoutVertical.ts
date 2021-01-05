@@ -71,7 +71,7 @@ export class UKLayoutVertical extends UKLayout {
 
         if (this.isTopToBottom) {
             // top to bottom 直接是原 offset
-            scroll.scrollToOffset(originOffset);
+            // scroll.scrollToOffset(originOffset);
             return;
         }
 

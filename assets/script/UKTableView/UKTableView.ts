@@ -192,7 +192,6 @@ export default class UKTableView extends cc.Component {
                 }
             }
         }
-        
 
         this.doLayout();
     }
@@ -307,10 +306,6 @@ export default class UKTableView extends cc.Component {
 
     private doLayout() {
         this._layout && this._layout.doLayout(this.scrollView, this._count);
-    }
-
-    private calContentSide() {
-        return this._layout.calContentSize(this._count);
     }
 
     private sizeAtIndex(index: number): number {

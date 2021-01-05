@@ -30,8 +30,6 @@ export default class ChatUserTextCell extends ChatUserCell {
         let height = this.lblText.node.height + 72;
         let nodeHeight = Math.max(minHeight, height);
 
-        cc.log('change node height: ', nodeHeight);
-
         this.node.height = nodeHeight;
     }
 }
