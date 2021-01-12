@@ -22,12 +22,19 @@ export default class ChatUserTextCell extends ChatUserCell {
 
     render(model: ChatTextModel) {
         this.isLeft = model.userId > 0;
+
+        const same = this.lblText.string == model.text;
+        if (same) {
+            this.onTextSizeChanged();
+            return;
+        }
+
         this.lblText.string = model.text;
     }
 
     private onTextSizeChanged() {
         let minHeight = 100;
-        let height = this.lblText.node.height + 72;
+        let height = this.lblText.node.height + 60;
         let nodeHeight = Math.max(minHeight, height);
 
         this.node.height = nodeHeight;

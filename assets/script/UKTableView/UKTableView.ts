@@ -339,6 +339,18 @@ export default class UKTableView extends cc.Component {
         this._curGenIndex = index;
 
         const cell = this.dataSource.cellAtIndex(index);
+
+        const side = this._layout.getSide(cell.node);
+        const cache = this._cacheSide[index];
+        if (cache && (side != cache)) {
+            cc.log(`更新缓存[${index}]高度：`, cache);
+            this._cacheSide[index] = side;
+            this.setupContentSize();
+            this.fixCellPositions();
+        } else {
+            cc.log(`缓存[${index}]高度：`, cache, side);
+        }
+
         return cell;
     }
 
