@@ -153,9 +153,8 @@ export default class UKTableView extends cc.Component {
                 cell = node.addComponent(UKTableViewCell);
                 cell.identifier = identifier;
             }
+            // this._layout.setSide(cell.node, side);
         }
-
-        this._layout.setSide(cell.node, side);
 
         cell.__toUse();
         cell.node.on(UKTableViewCell.EventSizeChanged, this.onCellSizeChanged, this);
@@ -343,12 +342,12 @@ export default class UKTableView extends cc.Component {
         const side = this._layout.getSide(cell.node);
         const cache = this._cacheSide[index];
         if (cache && (side != cache)) {
-            cc.log(`更新缓存[${index}]高度：`, cache);
+            cc.log(`更新缓存[${index}]高度：`, side, cache);
             this._cacheSide[index] = side;
             this.setupContentSize();
             this.fixCellPositions();
         } else {
-            cc.log(`缓存[${index}]高度：`, cache, side);
+            cc.log(`缓存[${index}]高度：`, side, cache);
         }
 
         return cell;

@@ -1,3 +1,4 @@
+import UKTableViewCell from "../../../UKTableView/cell/UKTableViewCell";
 import { ChatTextModel } from "../model/ChatModel";
 import ChatUserCell from "./ChatUserCell";
 
@@ -16,20 +17,25 @@ export default class ChatUserTextCell extends ChatUserCell {
     }
 
     onLoad() {
-        this.lblTextLeft.node.parent.on('size-changed', this.onTextSizeChanged, this);
-        this.lblTextRight.node.parent.on('size-changed', this.onTextSizeChanged, this);
     }
 
     render(model: ChatTextModel) {
         this.isLeft = model.userId > 0;
 
-        const same = this.lblText.string == model.text;
-        if (same) {
-            this.onTextSizeChanged();
-            return;
-        }
-
         this.lblText.string = model.text;
+        // @ts-ignore
+        this.lblText._updateNodeSize(true);
+        this.onTextSizeChanged();
+
+        cc.log(`${this.lblText.string} ：[${this.lblText.node.height}]`);
+
+        // 1.x _updateNodeSize
+        // 2.0 _updateRenderData
+        // 2.2 _forceUpdateRenderData
+    }
+
+    click() {
+        cc.log(this.getComponent(UKTableViewCell).index, this.node.height);
     }
 
     private onTextSizeChanged() {
