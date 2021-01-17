@@ -16,6 +16,10 @@ export class uk {
     }
 
     static setHight(node: cc.Node, height: number): void {
+        if (node.height > height ) {
+            const e = new Error();
+            cc.error(e.stack);
+        }
         node.height = height;
     }
 
