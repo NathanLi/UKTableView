@@ -110,9 +110,10 @@ export class UKLayout implements IUKLayout {
         const node = cell.node;
 
         this.setSide(node, side);
-        content.addChild(node);
 
+        cell.__addWithParent(content);
         cell.__fixIndex(index);
+        
         return cell;
     }
 

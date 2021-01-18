@@ -4,6 +4,8 @@ import ChatUserCell from "./ChatUserCell";
 
 const {ccclass, property, menu} = cc._decorator;
 
+const SIZE_CHANGED = 'size-changed';
+
 @ccclass
 export default class ChatUserTextCell extends ChatUserCell {
     @property(cc.Label)
@@ -19,6 +21,9 @@ export default class ChatUserTextCell extends ChatUserCell {
     }
 
     onLoad() {
+        // this.lblTextLeft.node.on(SIZE_CHANGED, this.onTextSizeChanged, this);
+        // this.lblTextRight.node.on(SIZE_CHANGED, this.onTextSizeChanged, this);
+        this.node.on(UKTableViewCell.EventDidAddToParent, this.updateTextNodeSize, this);
     }
 
     render(model: ChatTextModel) {
@@ -27,7 +32,6 @@ export default class ChatUserTextCell extends ChatUserCell {
         this.lblText.string = model.text;
         
         this.updateTextNodeSize();
-        this.onTextSizeChanged();
     }
 
     click() {
@@ -44,13 +48,13 @@ export default class ChatUserTextCell extends ChatUserCell {
             label.node.width = this.maxTextWidth;
             this.forceUpdateTextSize(label);
         }
+
+        this.onTextSizeChanged();
     }
 
     private forceUpdateTextSize(label: cc.Label) {
         // @ts-ignore
         label._updateNodeSize(true);
-        cc.log(`${label.string} ：[${label.node.getContentSize()}]`);
-
         // 1.x _updateNodeSize
         // 2.0 _updateRenderData
         // 2.2 _forceUpdateRenderData

@@ -10,7 +10,7 @@ export default class UKTableViewCell extends cc.Component {
     @property
     identifier: string = 'default';
 
-    private __index: number;
+    private __index: number = 0;
 
     __isUsing: boolean = false;
 
@@ -26,6 +26,7 @@ export default class UKTableViewCell extends cc.Component {
     onToUse?: () => void;
 
     static EventSizeChanged = 'UKTableViewCell-SizeChanged';
+    static EventDidAddToParent = 'UKTableViewCell-EventDidAddToParent';
 
     onLoad() {
         this.node.on('size-changed', this.onSizeChanged, this);
@@ -54,6 +55,14 @@ export default class UKTableViewCell extends cc.Component {
     __prepareForReuse(): void {
         this.__isUsing = false;
         this.onPrepareForReuse && this.onPrepareForReuse();
+    }
+
+    __addWithParent(parent: cc.Node): void {
+        parent.addChild(this.node);
+        
+        this.node.emit(UKTableViewCell.EventDidAddToParent, {
+            cell: this
+        });
     }
 
     private onSizeChanged() {
