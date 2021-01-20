@@ -78,6 +78,9 @@ export default class UKTableView extends cc.Component {
 
     /** 当前正在生成的 cell 的 index */
     private _curGenIndex: number = 0;
+    
+    /** 用于重新布局的 timer */
+    private _timerLayout: number = 0;
 
     private _cacheSide: {[index: number]: number} = {};
     private _cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
@@ -343,12 +346,9 @@ export default class UKTableView extends cc.Component {
         const side = this._layout.getSide(cell.node);
         const cache = this._cacheSide[index];
         if (cache && (side != cache)) {
-            cc.log(`更新缓存[${index}]高度：`, side, cache);
             this._cacheSide[index] = side;
             this.setupContentSize();
             this.fixCellPositions();
-        } else {
-            cc.log(`缓存[${index}]高度：`, side, cache);
         }
 
         return cell;
@@ -361,10 +361,33 @@ export default class UKTableView extends cc.Component {
             return;
         }
 
-        const index = cell.index;
         const side = this._layout.getSide(cell.node);
-
+        const index = cell.index;
         this._cacheSide[index] = side;
+
+        this._relayoutNextTime();
+    }
+
+    /**
+     * 下一个时间片进行重新布局
+     * 
+     * 不实时布局的的原因在于：
+     * 多个 cell 的 side 可能同时在更改，在布局的过程中，有 cell 的 side 也可能会改。如果实时布局，那么可能会导致布局不正确。
+     */
+    private _relayoutNextTime() {
+        if (this._timerLayout) {
+            return;
+        }
+
+        this._timerLayout = setTimeout(() => {
+            if (cc.isValid(this, true)) {
+                this._relayout();
+            }
+        });
+    }
+
+    private _relayout() {
+        this._timerLayout = 0;
         this.setupContentSize();
         this.fixCellPositions();
     }

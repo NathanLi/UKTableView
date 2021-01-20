@@ -87,6 +87,7 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
 
     // MARK: UKTableViewDelegate
     estimateSizeAtIndex(index: number) {
-        return 100;
+        const model = this.models[index];
+        return model['text'] ? 100 : 30;
     }
 }   

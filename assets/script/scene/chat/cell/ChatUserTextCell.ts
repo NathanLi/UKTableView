@@ -35,7 +35,7 @@ export default class ChatUserTextCell extends ChatUserCell {
     }
 
     click() {
-        cc.log(this.getComponent(UKTableViewCell).index, this.node.height);
+        cc.log(this.getComponent(UKTableViewCell).index, this.node.y, this.node.height);
     }
 
     private updateTextNodeSize() {
