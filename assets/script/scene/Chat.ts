@@ -37,6 +37,7 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
 
         this.scheduleOnce(() => {
             this.tableView.reloadData();
+            this.scheduleOnce(() => this.tableView.scrollToIndex(this.models.length), 0.2);
         });
     }
 
@@ -60,7 +61,7 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
         this.edbText.string = '';
 
         this.scheduleOnce(() => {
-            // this.tableView.scrollToIndex(this.models.length - 1, 0.3);
+            this.tableView.scrollToIndex(this.models.length - 1, 0.3);
         });
     }
 
