@@ -347,8 +347,7 @@ export default class UKTableView extends cc.Component {
         const cache = this._cacheSide[index];
         if (cache && (side != cache)) {
             this._cacheSide[index] = side;
-            this.setupContentSize();
-            this.fixCellPositions();
+            this._relayoutNextTime();
         }
 
         return cell;

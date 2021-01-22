@@ -29,6 +29,8 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
 
     private models: IChatModel[] = TestChatModels.concat();
 
+    private cacheHeight: Map<number, number> = new Map();
+
     onLoad() {
         this.tableView.registe(this.preChatText, EChatCellType.text);
         this.tableView.registe(this.preChatTime, EChatCellType.time);
@@ -73,6 +75,8 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
             const cell = this.tableView.dequeueReusableCell(EChatCellType.text);
             const chatCell = cell.getComponent(ChatUserTextCell);
             chatCell.render(<ChatTextModel>model);
+
+            this.cacheHeight.set(model.time, cell.node.height);
             return cell;
         }
 
@@ -89,6 +93,12 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
     // MARK: UKTableViewDelegate
     estimateSizeAtIndex(index: number) {
         const model = this.models[index];
+        const cache = this.cacheHeight.get(model.time);
+
+        if (cache) {
+            return cache;
+        }
+
         return model['text'] ? 100 : 30;
     }
 }   

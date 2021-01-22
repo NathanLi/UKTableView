@@ -1,6 +1,9 @@
-import { ChatTextModel } from "./ChatModel";
+import { IChatModel } from "./ChatModel";
 
-export const TestChatModels: ChatTextModel[] = [
+export const TestChatModels: IChatModel[] = [
+    {
+        time: Date.now() - 60 * 60 * 1000 - 10
+    },
     {
         userId: 1,
         time: Date.now() - 60 * 60 * 1000,
