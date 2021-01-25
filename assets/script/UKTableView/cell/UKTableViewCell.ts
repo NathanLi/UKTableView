@@ -70,6 +70,10 @@ export default class UKTableViewCell extends cc.Component {
             return;
         }
 
+        if (!this.node.parent) {
+            return;
+        }
+
         const size = this.node.getContentSize(true);
         this.node.emit(UKTableViewCell.EventSizeChanged, {
             cell: this,
