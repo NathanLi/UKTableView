@@ -203,7 +203,14 @@ export default class UKTableView extends cc.Component {
             return;
         }
 
-        // TODO: indexs 的合法性校验
+        // indexs 的合法性校验
+        const maxCount = this._count + indexs.length;
+        for (let i = 0; i < indexs.length; ++i) {
+            const index = indexs[i];
+            if (index < 0 || index >= maxCount) {
+                throw new Error(`${index} not exist!`);
+            }
+        }
 
         this._count += indexs.length;
         this._layout.insertCellAtIndexs(this.content, indexs);
@@ -217,8 +224,6 @@ export default class UKTableView extends cc.Component {
         if (!indexs || !indexs.length) {
             return;
         }
-
-        // TODO: 重复校验
 
         for (let i = 0; i < indexs.length; ++i) {
             const index = indexs[i];
