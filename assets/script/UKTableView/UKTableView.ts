@@ -213,9 +213,7 @@ export default class UKTableView extends cc.Component {
         this._count += indexs.length;
         this._layout.insertCellAtIndexs(this.content, indexs);
         this.resetCache();
-        this.setupContentSize();
-        this.fixCellPositions();
-        this.doLayout();
+        this._relayoutNextTime();
     }
 
     delete(indexs: number[]): void {
@@ -233,9 +231,7 @@ export default class UKTableView extends cc.Component {
         this._count -= indexs.length;
         this._layout.deleteCellAtIndexs(this.content, indexs);
         this.resetCache();
-        this.setupContentSize();
-        this.fixCellPositions();
-        this.doLayout();
+        this._relayoutNextTime();
     }
 
     /**
