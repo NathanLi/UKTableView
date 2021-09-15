@@ -54,7 +54,7 @@ export default class ChatUserTextCell extends ChatUserCell {
 
     private forceUpdateTextSize(label: cc.Label) {
         // @ts-ignore
-        label._updateNodeSize(true);
+        label._forceUpdateRenderData();
         // 1.x _updateNodeSize
         // 2.0 _updateRenderData
         // 2.2 _forceUpdateRenderData

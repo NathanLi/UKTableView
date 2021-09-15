@@ -365,8 +365,7 @@ export default class UKTableView extends cc.Component {
         return cell;
     }
 
-    private onCellSizeChanged(event: cc.Event.EventCustom) {
-        const info: ICellSizeChangedInfo = event.getUserData();
+    private onCellSizeChanged(info: ICellSizeChangedInfo) {
         const cell = info.cell;
         if (!cell.node.parent) {
             return;
