@@ -4,7 +4,6 @@ import { IUKLayout } from "./layout/IUKLayout";
 import { UKLayoutHorizontal } from "./layout/UKLayoutHorizontal";
 import { UKLayoutVertical } from "./layout/UKLayoutVertical";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
-import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
 const {ccclass, property, executionOrder} = cc._decorator;
 
@@ -53,9 +52,6 @@ export default class UKTableView extends cc.Component {
     })
     spaceX: number = 0;
 
-    @property({tooltip: CC_DEV && 'cell 的估算大小'})
-    itemEstimateSize: number = 0;
-
     @property({
         visible:function() {return this.type == EUKTableViewType.VERTICAL}, 
         tooltip: CC_DEV && '垂直排列子节点的方向，包括：\nTOP_TO_BOTTOM: 从上往下排\nBOTTOM_TO_TOP: 从下往上排',
@@ -74,6 +70,9 @@ export default class UKTableView extends cc.Component {
     private _count: number = 0;
     private _layout: IUKLayout;
 
+    /** 注册的 cell 的平均边长 */
+    private _avgCellSide: number = 0;
+
     /** 当前正在生成的 cell 的 index */
     private _curGenIndex: number = 0;
     
@@ -84,7 +83,6 @@ export default class UKTableView extends cc.Component {
     private _cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
     private _registedCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
 
-    delegate?: UKTableViewDelegate;
     dataSource: UKTableViewDataSrouce;
 
     private _content: cc.Node = null;
@@ -116,7 +114,6 @@ export default class UKTableView extends cc.Component {
         }
 
         this.dataSource = null;
-        this.delegate = null;
     }
 
     private regsiteFromContent() {
@@ -262,7 +259,29 @@ export default class UKTableView extends cc.Component {
         cclayout && (cclayout.enabled = false);
 
         this._layout && (this._layout.destory());
-        this._layout = this.createLayout();        
+        this._layout = this.createLayout();       
+        
+        this.calAveSide();
+    }
+
+    private calAveSide() {
+        let sideCount = 0;
+        let sourceCount = 0;
+        for (let key of Object.keys(this._registedCell)) {
+            let value = this._registedCell[key];
+            let side = 0;
+
+            if ((value as cc.Prefab).data) {
+                side = this._layout.getSide((value as cc.Prefab).data);
+            } else {
+                side = this._layout.getSide(value as cc.Node);
+            }
+
+            sideCount += side;
+            sourceCount += 1;
+        }
+
+        this._avgCellSide = sideCount / sourceCount;
     }
 
     private recycleAllCells() {
@@ -312,13 +331,7 @@ export default class UKTableView extends cc.Component {
     private sizeAtIndex(index: number): number {
         let size = this._cacheSide[index];
         if (!size) {
-            size = this.itemEstimateSize;
-
-            if (this.delegate && this.delegate.estimateSizeAtIndex) {
-                size = this.delegate.estimateSizeAtIndex(index);
-            }
-
-            this._cacheSide[index] = size;
+            this._cacheSide[index] = this._avgCellSide;
         }
 
         return size;
@@ -400,5 +413,5 @@ export default class UKTableView extends cc.Component {
 }
 
 function isNode(v: cc.Node | cc.Prefab): boolean {
-    return (<any>v).width !== undefined;
+    return (v as cc.Prefab).data == undefined;
 }
