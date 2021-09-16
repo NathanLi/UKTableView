@@ -293,11 +293,13 @@ export default class UKTableView extends cc.Component {
     }
 
     private resetCache() {
-        this._cacheSide = {
-            0: undefined,
-            1: undefined,
-            2: undefined
-        };
+        if (!this._cacheSide) {
+            this._cacheSide = {
+                0: undefined,
+                1: undefined,
+                2: undefined
+            };
+        }
     }
 
     private createLayout() {

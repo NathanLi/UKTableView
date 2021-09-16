@@ -60,8 +60,7 @@ export class UKLayout implements IUKLayout {
 
         indexs.forEach(index => {
             if (index >= minCellIndex) {
-                const side = this.sizeAtIndex(index);
-                this.insertOneCellAt(content, index, side);
+                this.insertOneCellAt(content, index);
 
                 cells.forEach(cell => {
                     if (cell.index >= index) {
@@ -105,11 +104,8 @@ export class UKLayout implements IUKLayout {
         throw '应该由子类实现';
     }
 
-    protected insertOneCellAt(content: cc.Node, index: number, side: number) {
+    protected insertOneCellAt(content: cc.Node, index: number) {
         const cell = this.cellAtIndex(index);
-        const node = cell.node;
-
-        this.setSide(node, side);
 
         cell.__addWithParent(content);
         cell.__fixIndex(index);

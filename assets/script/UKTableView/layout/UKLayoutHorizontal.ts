@@ -156,7 +156,7 @@ export class UKLayoutHorizontal extends UKLayout {
             const isOut = (curLeft >= visiableRight) || (curRight <= visiableLeft);
             const visiable = !isOut;
             if (visiable) { 
-                const cell = this.insertOneCellAt(content, index, side);
+                const cell = this.insertOneCellAt(content, index);
                 const node = cell.node;
 
                 uk.setXByRight(node, curRight, side);

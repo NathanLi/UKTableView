@@ -55,6 +55,8 @@ export class UKLayoutVertical extends UKLayout {
                 continue;
             }
 
+            console.log(`setYByTop(${index}, ${curTop}, ${side})`);
+
             uk.setYByTop(node, curTop, side);
 
             if ((++layoutCount) == length) {
@@ -159,7 +161,7 @@ export class UKLayoutVertical extends UKLayout {
             const isOut = (curBottom >= visiableTop) || (curTop <= visiableBottom);
             const visiable = !isOut;
             if (visiable) {
-                const cell = this.insertOneCellAt(content, index, side);
+                const cell = this.insertOneCellAt(content, index);
                 const node = cell.node;
 
                 uk.setYByTop(node, curTop, side);
