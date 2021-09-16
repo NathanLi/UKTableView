@@ -1,6 +1,5 @@
 import UKTableView from "../UKTableView/UKTableView";
 import { UKTableViewDataSrouce } from "../UKTableView/UKTableViewDataSource";
-import { UKTableViewDelegate } from "../UKTableView/UKTableViewDelegate";
 import ChatTimeCell from "./chat/cell/ChatTimeCell";
 import ChatUserTextCell from "./chat/cell/ChatUserTextCell";
 import { ChatModelManager, ChatTextModel, IChatModel } from "./chat/model/ChatModel";
@@ -14,7 +13,7 @@ enum EChatCellType {
 }
 
 @ccclass
-export default class Chat extends cc.Component implements UKTableViewDataSrouce, UKTableViewDelegate {
+export default class Chat extends cc.Component implements UKTableViewDataSrouce {
     @property(UKTableView)
     private tableView: UKTableView = null;
 
@@ -29,12 +28,9 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
 
     private models: IChatModel[] = TestChatModels.concat();
 
-    private cacheHeight: Map<number, number> = new Map();
-
     onLoad() {
         this.tableView.registe(this.preChatText, EChatCellType.text);
         this.tableView.registe(this.preChatTime, EChatCellType.time);
-        this.tableView.delegate = this;
         this.tableView.dataSource = this;
 
         this.scheduleOnce(() => {
@@ -76,7 +72,6 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce,
             const chatCell = cell.getComponent(ChatUserTextCell);
             chatCell.render(<ChatTextModel>model);
 
-            this.cacheHeight.set(model.time, cell.node.height);
             return cell;
         }
 
