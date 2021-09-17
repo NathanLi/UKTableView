@@ -140,7 +140,6 @@ export default class UKTableView extends cc.Component {
         }
 
         const cacheCells = this._cacheCell[identifier] || [];
-        const side = this.sizeAtIndex(this._curGenIndex);
 
         let cell = cacheCells.pop();
         if (!cell) {
@@ -333,7 +332,8 @@ export default class UKTableView extends cc.Component {
     private sizeAtIndex(index: number): number {
         let size = this._cacheSide[index];
         if (!size) {
-            this._cacheSide[index] = this._avgCellSide;
+            size = this._avgCellSide;
+            this._cacheSide[index] = size;
         }
 
         return size;
