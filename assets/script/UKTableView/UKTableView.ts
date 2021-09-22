@@ -73,9 +73,6 @@ export default class UKTableView extends cc.Component {
     /** 注册的 cell 的平均边长 */
     private _avgCellSide: number = 0;
 
-    /** 当前正在生成的 cell 的 index */
-    private _curGenIndex: number = 0;
-    
     /** 用于重新布局的 timer */
     private _timerLayout: number = 0;
 
@@ -352,8 +349,6 @@ export default class UKTableView extends cc.Component {
     }
 
     private cellAtIndex(index: number): UKTableViewCell {
-        this._curGenIndex = index;
-
         const cell = this.dataSource.cellAtIndex(index);
         cell.__fixIndex(index);
 
