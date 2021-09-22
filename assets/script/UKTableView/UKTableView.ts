@@ -76,6 +76,9 @@ export default class UKTableView extends cc.Component {
     /** 用于重新布局的 timer */
     private _timerLayout: number = 0;
 
+    /** 滚动时的目标 target */
+    private _scrollTarget: UKScrollInfo = null;
+
     private _cacheSide: {[index: number]: number} = {};
     private _cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
     private _registedCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
@@ -236,6 +239,8 @@ export default class UKTableView extends cc.Component {
     scrollToIndex(index: number, timeInSecond: number = 0, attenuated = true): void {
         const toIndex = Math.min(Math.max(index, 0), this._count - 1);
         const pos = this._layout.getOffsetOfIndex(this.scrollView, toIndex, this._count);
+        
+        this._scrollTarget = new UKScrollInfo(toIndex, timeInSecond, attenuated);
         this.scrollView.scrollToOffset(pos, timeInSecond, attenuated);
     }
 
@@ -401,13 +406,50 @@ export default class UKTableView extends cc.Component {
 
     private fixCellPositions() {
         this._layout.fixPositions(this.scrollView, this._count);
+
+        if (this.scrollView.isAutoScrolling() && this._scrollTarget) {
+            const pos = this._layout.getOffsetOfIndex(this.scrollView, this._scrollTarget.targetIndex, this._count);
+            const duration = this._scrollTarget.remainDuration();
+            this.scrollView.scrollToOffset(pos, duration, this._scrollTarget.attenuated);
+        }
     }
 
     lateUpdate() {
         this.doLayout();
+
+        if ((!this.scrollView || !this.scrollView.isAutoScrolling()) && this._scrollTarget) {
+            this._scrollTarget = null;
+        }
     }
 }
 
 function isNode(v: cc.Node | cc.Prefab): boolean {
     return (v as cc.Prefab).data == undefined;
 }
+
+class UKScrollInfo {
+    targetIndex: number;
+    timeInSecond: number;
+    attenuated: boolean;
+
+    /** 开始时间(毫秒) */
+    startTime: number;
+
+    constructor(index: number, timeInSecond?: number, attenuated?: boolean) {
+        this.targetIndex = index;
+        this.timeInSecond = timeInSecond || 0;
+        this.attenuated = attenuated || false;
+        this.startTime = getTimeInMilliseconds();
+    }
+
+    remainDuration(): number {
+        const duration = getTimeInMilliseconds() - this.startTime;
+        const remain = Math.max(0.1, (this.timeInSecond * 1000 - duration) / 1000.0);
+        return remain;
+    }
+}
+
+let getTimeInMilliseconds = function() {
+    let currentTime = new Date();
+    return currentTime.getMilliseconds();
+};

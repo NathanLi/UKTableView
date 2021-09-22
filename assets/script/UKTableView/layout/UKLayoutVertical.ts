@@ -55,8 +55,6 @@ export class UKLayoutVertical extends UKLayout {
                 continue;
             }
 
-            console.log(`setYByTop(${index}, ${curTop}, ${side})`);
-
             uk.setYByTop(node, curTop, side);
 
             if ((++layoutCount) == length) {
