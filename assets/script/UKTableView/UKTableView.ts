@@ -169,7 +169,7 @@ export default class UKTableView extends cc.Component {
         this.recycleAllCells();
         this.resetCache();
         this.setupLayoutArgs();
-        this.setupContentSize();
+        this._setupContentSize();
 
         if (!this._reloaded) {
             this._reloaded = true;
@@ -323,7 +323,7 @@ export default class UKTableView extends cc.Component {
         return layout;
     }
 
-    private setupContentSize() {
+    private _setupContentSize() {
         this._layout.setupContentSize(this.scrollView, this._count);
     }
 
@@ -400,13 +400,16 @@ export default class UKTableView extends cc.Component {
 
     private _relayout() {
         this._timerLayout = 0;
-        this.setupContentSize();
-        this.fixCellPositions();
+        this._setupContentSize();
+        this._fixCellPositions();
+        this._fixScrollPos();
     }
 
-    private fixCellPositions() {
+    private _fixCellPositions() {
         this._layout.fixPositions(this.scrollView, this._count);
+    }
 
+    private _fixScrollPos() {
         if (this.scrollView.isAutoScrolling() && this._scrollTarget) {
             const pos = this._layout.getOffsetOfIndex(this.scrollView, this._scrollTarget.targetIndex, this._count);
             const duration = this._scrollTarget.remainDuration();
