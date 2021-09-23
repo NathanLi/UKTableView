@@ -150,7 +150,6 @@ export default class UKTableView extends cc.Component {
                 cell = node.addComponent(UKTableViewCell);
                 cell.identifier = identifier;
             }
-            // this._layout.setSide(cell.node, side);
         }
 
         cell.__toUse();
