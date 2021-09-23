@@ -6,9 +6,4 @@ export interface UKTableViewDataSrouce {
      * @param index 
      */
     cellAtIndex(index: number): UKTableViewCell;
-
-    /**
-     * cell 的数量
-     */
-    numberOfCell(): number;
 }

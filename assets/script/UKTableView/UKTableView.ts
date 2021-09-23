@@ -158,12 +158,12 @@ export default class UKTableView extends cc.Component {
         return cell;
     }
 
-    reloadData(): void {
+    reloadData(count: number): void {
         if (!this.dataSource) {
             throw 'you should set dataSource!';
         }
 
-        this._count = this.dataSource.numberOfCell();;
+        this._count = count;
 
         this.recycleAllCells();
         this.resetCache();

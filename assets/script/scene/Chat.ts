@@ -34,7 +34,7 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce 
         this.tableView.dataSource = this;
 
         this.scheduleOnce(() => {
-            this.tableView.reloadData();
+            this.tableView.reloadData(this.models.length);
             this.scheduleOnce(() => this.tableView.scrollToIndex(this.models.length), 0.2);
         });
     }
@@ -55,7 +55,7 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce 
             text: text
         };
         ChatModelManager.add(this.models, model);
-        this.tableView.reloadData();
+        this.tableView.reloadData(this.models.length);
         this.edbText.string = '';
 
         this.scheduleOnce(() => {
@@ -79,9 +79,5 @@ export default class Chat extends cc.Component implements UKTableViewDataSrouce 
         const timeCell = cell.getComponent(ChatTimeCell);
         timeCell.render(model);
         return cell;
-    }
-
-    numberOfCell() {
-        return this.models.length;
     }
 }   
