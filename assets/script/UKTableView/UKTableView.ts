@@ -70,8 +70,8 @@ export default class UKTableView extends cc.Component {
     private _count: number = 0;
     private _layout: IUKLayout;
 
-    /** 注册的 cell 的平均边长 */
-    private _avgCellSide: number = 0;
+    /** 注册的 cell 的默认边长 */
+    private _defaultCellSide: number = 0;
 
     /** 用于重新布局的 timer */
     private _timerLayout: number = 0;
@@ -265,23 +265,20 @@ export default class UKTableView extends cc.Component {
     }
 
     private calAveSide() {
-        let sideCount = 0;
-        let sourceCount = 0;
+        let maxSide = 0;
         for (let key of Object.keys(this._registedCell)) {
             let value = this._registedCell[key];
             let side = 0;
-
             if ((value as cc.Prefab).data) {
                 side = this._layout.getSide((value as cc.Prefab).data);
             } else {
                 side = this._layout.getSide(value as cc.Node);
             }
 
-            sideCount += side;
-            sourceCount += 1;
+            maxSide = Math.max(maxSide, side);
         }
 
-        this._avgCellSide = sideCount / sourceCount;
+        this._defaultCellSide = maxSide;
     }
 
     private recycleAllCells() {
@@ -333,7 +330,7 @@ export default class UKTableView extends cc.Component {
     private sizeAtIndex(index: number): number {
         let size = this._cacheSide[index];
         if (!size) {
-            size = this._avgCellSide;
+            size = this._defaultCellSide;
             this._cacheSide[index] = size;
         }
 
