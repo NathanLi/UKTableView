@@ -63,11 +63,15 @@ export class UKLayoutVertical extends UKLayout {
         }
     }
 
-    setupContentSize(scroll: cc.ScrollView, count: number): void {
+    setupContentSize(scroll: cc.ScrollView, count: number, fixOffset: boolean = false): void {
         const originOffset = scroll.getScrollOffset();
         const originSide = scroll.content.height;
         const side = this.calContentSize(count);
         this.setSide(scroll.content, side);
+
+        if (!fixOffset) {
+            return;
+        }
 
         if (this.isTopToBottom) {
             // top to bottom 直接是原 offset

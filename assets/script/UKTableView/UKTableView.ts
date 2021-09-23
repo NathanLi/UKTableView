@@ -411,7 +411,7 @@ export default class UKTableView extends cc.Component {
     private _fixScrollPos() {
         if (this.scrollView.isAutoScrolling() && this._scrollTarget) {
             const pos = this._layout.getOffsetOfIndex(this.scrollView, this._scrollTarget.targetIndex, this._count);
-            const duration = this._scrollTarget.remainDuration();
+            const duration = Math.max(this._scrollTarget.remainDuration(), 0.1);
             this.scrollView.scrollToOffset(pos, duration, this._scrollTarget.attenuated);
         }
     }
@@ -446,7 +446,7 @@ class UKScrollInfo {
 
     remainDuration(): number {
         const duration = getTimeInMilliseconds() - this.startTime;
-        const remain = Math.max(0.1, (this.timeInSecond * 1000 - duration) / 1000.0);
+        const remain = Math.max(0, (this.timeInSecond * 1000 - duration) / 1000.0);
         return remain;
     }
 }

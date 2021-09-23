@@ -34,7 +34,7 @@ export interface IUKLayout {
      * @param scroll 
      * @param count 
      */
-    setupContentSize(scroll: cc.ScrollView, count: number): void;
+    setupContentSize(scroll: cc.ScrollView, count: number, fixOffset?: boolean): void;
     
     /**
      * 计算内容的总边长

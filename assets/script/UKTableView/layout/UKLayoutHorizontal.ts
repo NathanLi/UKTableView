@@ -62,11 +62,15 @@ export class UKLayoutHorizontal extends UKLayout {
         }
     }
 
-    setupContentSize(scroll: cc.ScrollView, count: number): void {
+    setupContentSize(scroll: cc.ScrollView, count: number, fixOffset: boolean): void {
         const originOffset = scroll.getScrollOffset();
         const originSide = scroll.content.width;
         const side = this.calContentSize(count);
         this.setSide(scroll.content, side);
+
+        if (!fixOffset) {
+            return;
+        }
 
         if (this.isLeftToRight) {
             // left to right 直接是原 offset
