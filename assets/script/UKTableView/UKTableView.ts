@@ -4,6 +4,19 @@ import { IUKLayout } from "./layout/IUKLayout";
 import { UKLayoutHorizontal } from "./layout/UKLayoutHorizontal";
 import { UKLayoutVertical } from "./layout/UKLayoutVertical";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
+import { UKTableViewDelegate } from "./UKTableViewDelegate";
+
+class UKDelegateCacheSize implements UKTableViewDelegate {
+    private _cache: {[index: number]: number} = {};
+
+    sizeAtIndex(index: number) {
+        return this._cache[index];
+    }
+
+    onSizeChanged(index: number, size: number) {
+        this._cache[index] = size;
+    }
+}
 
 const {ccclass, property, executionOrder} = cc._decorator;
 
@@ -79,11 +92,11 @@ export default class UKTableView extends cc.Component {
     /** 滚动时的目标 target */
     private _scrollTarget: UKScrollInfo = null;
 
-    private _cacheSide: {[index: number]: number} = {};
     private _cacheCell: {[identifier: string]: [UKTableViewCell]} = {};
     private _registedCell: {[identifier: string]: cc.Node | cc.Prefab} = {};
 
     dataSource: UKTableViewDataSrouce;
+    delegate: UKTableViewDelegate = new UKDelegateCacheSize();
 
     private _content: cc.Node = null;
     private get content() {
@@ -166,7 +179,6 @@ export default class UKTableView extends cc.Component {
         this._count = count;
 
         this.recycleAllCells();
-        this.resetCache();
         this.setupLayoutArgs();
         this._setupContentSize();
 
@@ -207,7 +219,6 @@ export default class UKTableView extends cc.Component {
 
         this._count += indexs.length;
         this._layout.insertCellAtIndexs(this.content, indexs);
-        this.resetCache();
         this._relayoutNextTime();
     }
 
@@ -225,7 +236,6 @@ export default class UKTableView extends cc.Component {
 
         this._count -= indexs.length;
         this._layout.deleteCellAtIndexs(this.content, indexs);
-        this.resetCache();
         this._relayoutNextTime();
     }
 
@@ -289,16 +299,6 @@ export default class UKTableView extends cc.Component {
         }
     }
 
-    private resetCache() {
-        if (!this._cacheSide) {
-            this._cacheSide = {
-                0: undefined,
-                1: undefined,
-                2: undefined
-            };
-        }
-    }
-
     private createLayout() {
         const layoutMaps = {
             [EUKTableViewType.VERTICAL]: () => new UKLayoutVertical(this.verticalDirection == EUKVerticalDirection.TOP_TO_BOTTOM),
@@ -328,10 +328,10 @@ export default class UKTableView extends cc.Component {
     }
 
     private sizeAtIndex(index: number): number {
-        let size = this._cacheSide[index];
+        let size = this.delegate.sizeAtIndex(index);
         if (!size) {
             size = this._defaultCellSide;
-            this._cacheSide[index] = size;
+            this.delegate.onSizeChanged(index, size);
         }
 
         return size;
@@ -354,9 +354,9 @@ export default class UKTableView extends cc.Component {
         cell.__fixIndex(index);
 
         const side = this._layout.getSide(cell.node);
-        const cache = this._cacheSide[index];
+        const cache = this.delegate.sizeAtIndex(index);
         if (cache && (side != cache)) {
-            this._cacheSide[index] = side;
+            this.delegate.onSizeChanged(index, side);
             this._relayoutNextTime();
         }
 
@@ -371,7 +371,8 @@ export default class UKTableView extends cc.Component {
 
         const side = this._layout.getSide(cell.node);
         const index = cell.index;
-        this._cacheSide[index] = side;
+
+        this.delegate.onSizeChanged(index, side);
 
         this._relayoutNextTime();
     }
