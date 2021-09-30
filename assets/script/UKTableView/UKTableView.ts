@@ -8,13 +8,18 @@ import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
 class UKDelegateCacheSize implements UKTableViewDelegate {
     private _cache: {[index: number]: number} = {};
+    private _defaultSize: number = 0;
 
     sizeAtIndex(index: number) {
-        return this._cache[index];
+        return this._cache[index] || this._defaultSize;
     }
 
     onSizeChanged(index: number, size: number) {
         this._cache[index] = size;
+    }
+    
+    onDefaultSizeChanged(size: number) {
+        this._defaultSize = size;
     }
 }
 
@@ -289,6 +294,10 @@ export default class UKTableView extends cc.Component {
         }
 
         this._defaultCellSide = maxSide;
+
+        if (typeof this.delegate['onDefaultSizeChanged'] === 'function') {
+            this.delegate['onDefaultSizeChanged'](this._defaultCellSide);
+        }
     }
 
     private recycleAllCells() {
