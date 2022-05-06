@@ -23,9 +23,10 @@ class UKDelegateCacheSize implements UKTableViewDelegate {
     }
 }
 
-const {ccclass, property, executionOrder} = cc._decorator;
+const {ccclass, property, executionOrder, menu} = cc._decorator;
 
 @ccclass
+@menu('UIKit/UKTableView/UKTableView')
 @executionOrder(-1)
 export default class UKTableView extends cc.Component {
     @property(cc.ScrollView)
