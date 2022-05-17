@@ -85,7 +85,12 @@ export default class UKTableView extends cc.Component {
     })
     horizontalDirection: EUKHorizontalDirection = EUKHorizontalDirection.LEFT_TO_RIGHT;
 
-    private _reloaded: boolean = false;
+    @property({
+        tooltip: CC_DEV && '内容不足时，是否可滑动'
+    })
+    enableScrollAlways: boolean = false;
+
+    private _isOffsetInited: boolean = false;
     private _count: number = 0;
     private _layout: IUKLayout;
 
@@ -94,6 +99,7 @@ export default class UKTableView extends cc.Component {
 
     /** 用于重新布局的 timer */
     private _timerLayout: number = 0;
+    private _timerInitOffset: number;
 
     /** 滚动时的目标 target */
     private _scrollTarget: UKScrollInfo = null;
@@ -124,6 +130,7 @@ export default class UKTableView extends cc.Component {
         for (let key in this._registedCell) {
             const value = this._registedCell[key];
             if (isNode(value)) {
+                // Prefab 不能释放是因为其应该由外部自己释放
                 value.destroy();
             }
         }
@@ -153,17 +160,22 @@ export default class UKTableView extends cc.Component {
         this._registedCell[identifier] = source;
     }
 
-    dequeueReusableCell(identifier?: string): UKTableViewCell {
+    dequeueReusableCell(identifier?: string, index?: number): UKTableViewCell {
         if (!identifier) {
             identifier = 'default';
         }
 
-        const cacheCells = this._cacheCell[identifier] || [];
-
-        let cell = cacheCells.pop();
+        let cell = this._loadFromCache(identifier, index);
         if (!cell) {
-            const souce = this._registedCell[identifier];
-            const node = cc.instantiate(souce) as cc.Node;
+            let source = this._registedCell[identifier];
+            let node: cc.Node;
+            if (isNode(source) && !source.parent) {
+                // 如果来源未被使用，则直接使用它
+                node = source as cc.Node;
+            } else {
+                node = cc.instantiate(source) as cc.Node;
+            }
+
             cell = node.getComponent(UKTableViewCell);
             if (!cell) {
                 cell = node.addComponent(UKTableViewCell);
@@ -177,6 +189,25 @@ export default class UKTableView extends cc.Component {
         return cell;
     }
 
+    private _loadFromCache(identifier: string, index?: number) {
+        const cacheCells = this._cacheCell[identifier];
+
+        if (!cacheCells?.length) {
+            return null;
+        }
+
+        if (index) {
+            const cellIndex = cacheCells.findIndex(c => c.index == index);
+            if (cellIndex >= 0) {
+                const cell = cacheCells[cellIndex];
+                cacheCells.splice(cellIndex, 1);
+                return cell;
+            }
+        }
+
+        return cacheCells.pop();
+    }
+
     reloadData(count: number): void {
         if (!this.dataSource) {
             throw 'you should set dataSource!';
@@ -188,25 +219,8 @@ export default class UKTableView extends cc.Component {
         this.setupLayoutArgs();
         this._setupContentSize();
 
-        if (!this._reloaded) {
-            this._reloaded = true;
-            // init the offset
-            if (this.type == EUKTableViewType.VERTICAL) {
-                if (this.verticalDirection == EUKVerticalDirection.BOTTOM_TO_TOP) {
-                    this.scrollView.scrollToBottom();
-                } else {
-                    this.scrollView.scrollToTop();
-                }
-            } else {
-                if (this.horizontalDirection == EUKHorizontalDirection.RIGHT_TO_LEFT) {
-                    this.scrollView.scrollToRight();
-                } else {
-                    this.scrollView.scrollToLeft();
-                }
-            }
-        }
-
         this.doLayout();
+        this._initOffsetNextTime();
     }
     
     insert(indexs: number[]): void {
@@ -330,6 +344,7 @@ export default class UKTableView extends cc.Component {
     }
 
     private _setupContentSize() {
+        this._layout.minSide = this.enableScrollAlways ? ((this.type == EUKTableViewType.VERTICAL ? this.node.height : this.node.width) + 1.0) : 0;
         this._layout.setupContentSize(this.scrollView, this._count);
     }
 
@@ -410,6 +425,42 @@ export default class UKTableView extends cc.Component {
         this._setupContentSize();
         this._fixCellPositions();
         this._fixScrollPos();
+
+        this._initOffsetNextTime();
+    }
+
+    private _initOffsetNextTime() {
+        if (this._isOffsetInited || this._timerInitOffset) {
+            return;
+        }
+
+        this._timerInitOffset = setTimeout(() => {
+            if (cc.isValid(this, true)) {
+                this._initOffset();
+            }
+        });
+    }
+
+    private _initOffset() {
+        this._timerInitOffset = 0;
+
+        if (!this._isOffsetInited) {
+            this._isOffsetInited = true;
+            // init the offset
+            if (this.type == EUKTableViewType.VERTICAL) {
+                if (this.verticalDirection == EUKVerticalDirection.BOTTOM_TO_TOP) {
+                    this.scrollView.scrollToBottom();
+                } else {
+                    this.scrollView.scrollToTop();
+                }
+            } else {
+                if (this.horizontalDirection == EUKHorizontalDirection.RIGHT_TO_LEFT) {
+                    this.scrollView.scrollToRight();
+                } else {
+                    this.scrollView.scrollToLeft();
+                }
+            }
+        }
     }
 
     private _fixCellPositions() {
@@ -433,8 +484,8 @@ export default class UKTableView extends cc.Component {
     }
 }
 
-function isNode(v: cc.Node | cc.Prefab): boolean {
-    return (v as cc.Prefab).data == undefined;
+function isNode(v: cc.Node | cc.Prefab): v is cc.Node {
+    return (v as cc.Node).getComponent != undefined;
 }
 
 class UKScrollInfo {
