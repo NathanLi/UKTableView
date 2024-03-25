@@ -11,6 +11,8 @@ export class UKLayout implements IUKLayout {
     spaceY: number = 0;
     spaceX: number = 0;
 
+    minSide?: number = 0;
+
     minDiff = 1;
 
     sizeAtIndex?: (index: number) => number;
@@ -37,7 +39,7 @@ export class UKLayout implements IUKLayout {
             size += this.sizeAtIndex(index);
         }
 
-        return size;
+        return Math.max(size, this.minSide || 0);
     }
 
     getChildCells(content: cc.Node): UKTableViewCell[] {

@@ -6,22 +6,45 @@ import { UKLayoutVertical } from "./layout/UKLayoutVertical";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
+const DEFAULT_KEY = 'default';
+
 class UKDelegateCacheSize implements UKTableViewDelegate {
     private _cache: {[index: number]: number} = {};
-    private _defaultSize: number = 0;
 
     sizeAtIndex(index: number) {
-        return this._cache[index] || this._defaultSize;
+        return this._cache[index] || 0;
     }
 
     onSizeChanged(index: number, size: number) {
         this._cache[index] = size;
     }
-    
-    onDefaultSizeChanged(size: number) {
-        this._defaultSize = size;
-    }
 }
+
+/**
+ * cell 重用 option
+ */
+export interface IDequeueReusableOption {
+    /**
+     * 如果有，则先重用同 `index` 的 cell
+     */
+    index?: number;
+
+    /**
+     * 与 delegate.sizeAtIndex(`index`) 的边长大小相同优先(默认为 true)；
+     * 注意：优先级高于 `index`；
+     * 
+     * 前置条件：`index` >= 0。
+     */
+    sameSizeFirst?: boolean;
+
+    /**
+     * 可以任意重用(默认为 true)  
+     * 
+     * 注意：如果你打算设置为 false，那么很可能会导致无法重用 cell，进而造成内存浪费
+     */
+    any?: boolean;
+}
+
 
 const {ccclass, property, executionOrder, menu} = cc._decorator;
 
@@ -129,7 +152,7 @@ export default class UKTableView extends cc.Component {
 
         for (let key in this._registedCell) {
             const value = this._registedCell[key];
-            if (isNode(value)) {
+            if (isNode(value) && cc.isValid(value)) {
                 // Prefab 不能释放是因为其应该由外部自己释放
                 value.destroy();
             }
@@ -140,6 +163,7 @@ export default class UKTableView extends cc.Component {
         }
 
         this.dataSource = null;
+        this.delegate = null;
     }
 
     private regsiteFromContent() {
@@ -155,17 +179,17 @@ export default class UKTableView extends cc.Component {
 
     registe(source: cc.Node | cc.Prefab, identifier?: string): void {
         if (!identifier) {
-            identifier = 'default';
+            identifier = DEFAULT_KEY;
         }
         this._registedCell[identifier] = source;
     }
 
-    dequeueReusableCell(identifier?: string, index?: number): UKTableViewCell {
+    dequeueReusableCell(identifier?: string, option?: IDequeueReusableOption): UKTableViewCell {
         if (!identifier) {
-            identifier = 'default';
+            identifier = DEFAULT_KEY;
         }
 
-        let cell = this._loadFromCache(identifier, index);
+        let cell = this._loadFromCache(identifier, option);
         if (!cell) {
             let source = this._registedCell[identifier];
             let node: cc.Node;
@@ -183,21 +207,41 @@ export default class UKTableView extends cc.Component {
             }
         }
 
+        if (option?.index >= 0) {
+            const size = this.delegate.sizeAtIndex(option.index);
+            if (size > 0 && (this._layout.getSide(cell.node) != size)) {
+                this._layout.setSide(cell.node, size);
+            }
+        }
+
         cell.__toUse();
         cell.node.on(UKTableViewCell.EventSizeChanged, this.onCellSizeChanged, this);
 
         return cell;
     }
 
-    private _loadFromCache(identifier: string, index?: number) {
+    private _loadFromCache(identifier: string, option?: IDequeueReusableOption) {
         const cacheCells = this._cacheCell[identifier];
 
         if (!cacheCells?.length) {
             return null;
         }
 
-        if (index) {
-            const cellIndex = cacheCells.findIndex(c => c.index == index);
+        const index = isNil(option?.index) ? -1 : option.index;
+        const sameSizeFirst = ((index >= 0) && !isNil(option?.sameSizeFirst)) ? option.sameSizeFirst : true;
+        const any = isNil(option?.any) ? true : option.any;
+
+        if (index >= 0) {
+            let cellIndex = -1;
+
+            if ((cellIndex < 0) && sameSizeFirst) {
+                cellIndex = cacheCells.findIndex(c => this._layout.getSide(c.node) == this.delegate.sizeAtIndex(index));
+            }
+
+            if (cellIndex < 0) {
+                cellIndex = cacheCells.findIndex(c => c.index == index);
+            }
+
             if (cellIndex >= 0) {
                 const cell = cacheCells[cellIndex];
                 cacheCells.splice(cellIndex, 1);
@@ -205,7 +249,11 @@ export default class UKTableView extends cc.Component {
             }
         }
 
-        return cacheCells.pop();
+        if (any) {
+            return cacheCells.pop();
+        }
+
+        return null;
     }
 
     reloadData(count: number): void {
@@ -282,11 +330,23 @@ export default class UKTableView extends cc.Component {
         return cells.find(c => c.index == index);
     }
 
+    visiableIndexs() {
+        return this.visiableCells().map(c => c.index);
+    }
+
+    /**
+     * 设置默认的边长
+     * @param size 
+     */
+    setDefaultSize(size: number) {
+        this._defaultCellSide = size;
+    }
+
     private setupLayoutArgs() {
         const ndContent = this.content;
         const cclayout = ndContent.getComponent(cc.Layout);
 
-        cclayout && (cclayout.enabled = false);
+        cclayout && (cclayout.enabled = false); 
 
         this._layout && (this._layout.destory());
         this._layout = this.createLayout();       
@@ -295,23 +355,20 @@ export default class UKTableView extends cc.Component {
     }
 
     private calAveSide() {
-        let maxSide = 0;
+        if (this._defaultCellSide > 0) {
+            return;
+        }
+
         for (let key of Object.keys(this._registedCell)) {
             let value = this._registedCell[key];
             let side = 0;
-            if ((value as cc.Prefab).data) {
-                side = this._layout.getSide((value as cc.Prefab).data);
+            if (isNode(value)) {
+                side = this._layout.getSide(value);
             } else {
-                side = this._layout.getSide(value as cc.Node);
+                side = this._layout.getSide((value as cc.Prefab).data);
             }
 
-            maxSide = Math.max(maxSide, side);
-        }
-
-        this._defaultCellSide = maxSide;
-
-        if (typeof this.delegate['onDefaultSizeChanged'] === 'function') {
-            this.delegate['onDefaultSizeChanged'](this._defaultCellSide);
+            this._defaultCellSide = side;
         }
     }
 
@@ -486,6 +543,10 @@ export default class UKTableView extends cc.Component {
 
 function isNode(v: cc.Node | cc.Prefab): v is cc.Node {
     return (v as cc.Node).getComponent != undefined;
+}
+
+function isNil(v: any): v is undefined | null {
+    return v === undefined || v === null;
 }
 
 class UKScrollInfo {

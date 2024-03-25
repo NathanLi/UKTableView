@@ -22,7 +22,12 @@ export class UKLayoutHorizontal extends UKLayout {
 
         const cells = this.getChildCells(content);
         this.doCycleCell(cells, visiableLeft, visiableRight);
-        this.doFillCell(scroll, cells, count);
+
+        if (this.isLeftToRight) {
+            this.doFillCellLeft(scroll, cells, count);
+        } else {
+            this.doFillCell(scroll, cells, count);
+        }
     }
 
     fixPositions(scroll: cc.ScrollView, count: number): void {
@@ -167,6 +172,39 @@ export class UKLayoutHorizontal extends UKLayout {
             }
 
             if (nextRight < visiableLeft) {
+                break; 
+            }
+        }
+    }
+
+    private doFillCellLeft(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
+        const [visiableLeft, visiableRight] = uk.getVisiableHorizontal(scroll);
+        const content = scroll.content;
+
+        let showedIndexs = showedCells.map(c => c.index);
+        let nextLeft = uk.getContentLeft(content) + this.paddingLeft;
+        let [startIndex, sign] = this.getIteratorAugs(eleCount);
+        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
+            const curLeft = nextLeft;
+            const side = this.sizeAtIndex(index);
+            const curRight = curLeft + side;
+
+            nextLeft = curRight + this.spaceX;
+
+            if (showedIndexs.indexOf(index) >= 0) {
+                continue;
+            }
+
+            const isOut = (curLeft >= visiableRight) || (curRight <= visiableLeft);
+            const visiable = !isOut;
+            if (visiable) { 
+                const cell = this.insertOneCellAt(content, index);
+                const node = cell.node;
+
+                uk.setXByLeft(node, curLeft, side);
+            }
+
+            if (nextLeft > visiableRight) {
                 break; 
             }
         }

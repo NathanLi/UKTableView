@@ -11,6 +11,8 @@ export interface IUKLayout {
 
     minDiff: number;
 
+    minSide?: number;
+
     destory(): void;
 
     /**

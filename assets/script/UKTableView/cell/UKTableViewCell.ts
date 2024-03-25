@@ -6,6 +6,7 @@ export interface ICellSizeChangedInfo {
 }
 
 @ccclass
+@menu('UIKit/UKTableView/UKTableViewCell')
 export default class UKTableViewCell extends cc.Component {
     @property
     identifier: string = 'default';

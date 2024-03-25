@@ -6,7 +6,7 @@ export interface UKTableViewDelegate {
     sizeAtIndex(index: number): number;
 
     /**
-     * Cell 的连长大小变动
+     * Cell 的边长大小变动
      * @param index 
      * @param size 变动后的大小
      */
