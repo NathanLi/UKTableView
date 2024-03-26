@@ -34,22 +34,21 @@ export class UKLayoutVerticalB2T extends UKLayout {
 
         const length = cells.length;
         let layoutCount = 0;
-        let nextTop = uk.getContentTop(content) - this.paddingTop;
-        let [startIndex, sign] = this.getIteratorAugs(count);
+        let nextBottom = this.paddingBottom + uk.getContentBottom(content);
 
-        for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
-            const curTop = nextTop;
+        for (let index = 0; index < count; index++) {
+            const curBottom = nextBottom;
             const side = this.sizeAtIndex(index);
-            const curBottom = curTop - side;
+            const curTop = curBottom + side;
             const node = mapNodes[index];
 
-            nextTop = curBottom - this.spaceY;
+            nextBottom = curTop + this.spaceY;
 
             if (!node) {
                 continue;
             }
 
-            uk.setYByTop(node, curTop, side);
+            uk.setYByBottom(node, curBottom, side);
 
             if ((++layoutCount) == length) {
                 break;
@@ -103,20 +102,24 @@ export class UKLayoutVerticalB2T extends UKLayout {
     }
 
     getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {
-        let [startIndex, sign] = this.getIteratorAugs(eleCount);
-        let top = 0 + this.paddingTop;
+        let bottom = 0 + this.paddingBottom;
         let toIndex = eleIndex;
 
-        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
+        for (let index = 0; index < eleCount; index ++) {
             if (index == toIndex) {
                 break;
             }
 
-            top = top + this.sizeAtIndex(index) + this.spaceY;
+            if (index > 0) {
+                bottom += this.spaceY;
+            }
+            
+            bottom += this.sizeAtIndex(index);
         }
 
-        let y = top;
-        return cc.v2(scroll.getScrollOffset().x, y);
+        const x = scroll.getScrollOffset().x;
+        const y = scroll.content.height - bottom;
+        return cc.v2(x, y);
     }
 
     private doCycleCell(cells: UKTableViewCell[], visiableTop: number, visiableBottom: number) {
@@ -136,14 +139,14 @@ export class UKLayoutVerticalB2T extends UKLayout {
         const content = scroll.content;
 
         let showedIndexs = showedCells.map(c => c.index);
-        let nextTop = uk.getContentTop(content) - this.paddingTop;
-        let [startIndex, sign] = this.getIteratorAugs(eleCount);
-        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
-            const curTop = nextTop;
-            const side = this.sizeAtIndex(index);
-            const curBottom = curTop - side;
+        let nextBottom = this.paddingBottom + uk.getContentBottom(content);
 
-            nextTop = curBottom - this.spaceY;
+        for (let index = 0; index < eleCount; index++) {
+            const curBottom = nextBottom;
+            const side = this.sizeAtIndex(index);
+            const curTop = curBottom + side;
+
+            nextBottom = curTop + this.spaceY;
             if (showedIndexs.indexOf(index) >= 0) {
                 continue;
             }
@@ -154,20 +157,12 @@ export class UKLayoutVerticalB2T extends UKLayout {
                 const cell = this.insertOneCellAt(content, index);
                 const node = cell.node;
 
-                uk.setYByTop(node, curTop, side);
+                uk.setYByBottom(node, curBottom, side);
             }
 
-            if (nextTop < visiableBottom) {
+            if (nextBottom > visiableTop) {
                 break; 
             }
         }
     }
-
-    private getIteratorAugs(count: number) {
-        const startIndex = count - 1;
-        const sign = -1;
-
-        return [startIndex, sign];
-    }
-
 }
