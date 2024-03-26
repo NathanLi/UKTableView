@@ -10,6 +10,10 @@ export default class Test extends cc.Component {
         cc.director.loadScene('TestVertical');
     }
 
+    clickTestB2T() {
+        cc.director.loadScene('TestVerticalB2T');
+    }
+
     clickTestHorizontal() {
         cc.director.loadScene('TestHorizontal');
     }

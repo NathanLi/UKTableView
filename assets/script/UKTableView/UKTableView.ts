@@ -3,6 +3,7 @@ import { EUKTableViewType, EUKVerticalDirection, EUKHorizontalDirection } from "
 import { IUKLayout } from "./layout/IUKLayout";
 import { UKLayoutHorizontal } from "./layout/UKLayoutHorizontal";
 import { UKLayoutVertical } from "./layout/UKLayoutVertical";
+import { UKLayoutVerticalB2T } from "./layout/UKLayoutVerticalB2T";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
@@ -121,8 +122,8 @@ export default class UKTableView extends cc.Component {
     private _defaultCellSide: number = 0;
 
     /** 用于重新布局的 timer */
-    private _timerLayout: number = 0;
-    private _timerInitOffset: number;
+    private _timerLayout?: any;
+    private _timerInitOffset?: any;
 
     /** 滚动时的目标 target */
     private _scrollTarget: UKScrollInfo = null;
@@ -381,12 +382,17 @@ export default class UKTableView extends cc.Component {
     }
 
     private createLayout() {
-        const layoutMaps = {
-            [EUKTableViewType.VERTICAL]: () => new UKLayoutVertical(this.verticalDirection == EUKVerticalDirection.TOP_TO_BOTTOM),
-            [EUKTableViewType.HORIZONTAL]: () => new UKLayoutHorizontal(this.horizontalDirection == EUKHorizontalDirection.LEFT_TO_RIGHT),
-        };
 
-        const layout: IUKLayout = layoutMaps[this.type]();
+        let layout: IUKLayout;
+        if (this.type == EUKTableViewType.VERTICAL) {
+            if (this.verticalDirection == EUKVerticalDirection.TOP_TO_BOTTOM) {
+                layout = new UKLayoutVertical();
+            } else {
+                layout = new UKLayoutVerticalB2T();
+            }
+        } else {
+            layout = new UKLayoutHorizontal(this.horizontalDirection == EUKHorizontalDirection.LEFT_TO_RIGHT);
+        }
 
         layout.paddingTop = this.paddingTop;
         layout.paddingBottom = this.paddingBottom;

@@ -2,7 +2,8 @@ import UKTableViewCell from "../cell/UKTableViewCell";
 import { uk } from "../util/uk";
 import { UKLayout } from "./UKLayout";
 
-export class UKLayoutVertical extends UKLayout {
+export class UKLayoutVerticalB2T extends UKLayout {
+    
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
         
@@ -57,8 +58,32 @@ export class UKLayoutVertical extends UKLayout {
     }
 
     setupContentSize(scroll: cc.ScrollView, count: number, fixOffset: boolean = false): void {
+        const originOffset = scroll.getScrollOffset();
+        const originSide = scroll.content.height;
         const side = this.calContentSize(count);
         this.setSide(scroll.content, side);
+
+        if (!fixOffset) {
+            return;
+        }
+
+        if (originOffset.y < 0) {
+            // 原来只显示了最底部的几个
+            scroll.scrollToPercentVertical(0);
+            return;
+        }
+
+        const scrollHeight = scroll.node.height;
+        if (side < scrollHeight) {
+            // 现在只需要显示最底部
+            scroll.scrollToPercentVertical(0);
+            return;
+        }
+
+        // 尝试显示原来的 offset
+        const diff = side - Math.max(scrollHeight, originSide);
+        const offset = cc.v2(originOffset.x, originOffset.y + diff);
+        scroll.scrollToOffset(offset);
     }
 
     getPaddingCount() {
@@ -139,8 +164,8 @@ export class UKLayoutVertical extends UKLayout {
     }
 
     private getIteratorAugs(count: number) {
-        let startIndex = 0;
-        let sign = 1;
+        const startIndex = count - 1;
+        const sign = -1;
 
         return [startIndex, sign];
     }
