@@ -19,6 +19,9 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
 
     onLoad() {
         this.tableView.dataSource = this;
+    }
+
+    protected start(): void {
         this.tableView.reloadData(this.count);
     }
 
@@ -32,7 +35,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
 
     clickToIndex() {
         const index = Number(this.edbIndex.string);
-        if (index === NaN) {
+        if (isNaN(index)) {
             this.edbIndex.string = '';
             return;
         }
@@ -44,7 +47,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
         const indexs = this.edbModifyIndexs.string.split(',').map(s => Number(s));
         for (let i in indexs) {
             const num = indexs[i];
-            if (num === NaN || num < 0) {
+            if (isNaN(num) || num < 0) {
                 this.edbModifyIndexs.string = '';
                 return;
             }
@@ -63,7 +66,7 @@ export default class TestVertical extends cc.Component implements UKTableViewDat
         const indexs = this.edbModifyIndexs.string.split(',').map(s => Number(s));
         for (let i in indexs) {
             const num = indexs[i];
-            if (num === NaN || num < 0) {
+            if (isNaN(num) || num < 0) {
                 this.edbModifyIndexs.string = '';
                 return;
             }
